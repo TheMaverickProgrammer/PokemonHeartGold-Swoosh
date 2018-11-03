@@ -84,6 +84,9 @@
     <ClInclude Include="DemoActivities\BattleScene.h">
       <Filter>Source Files\Demo\Activities</Filter>
     </ClInclude>
+    <ClInclude Include="TMXMapLayer.h">
+      <Filter>Source Files\Demo\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

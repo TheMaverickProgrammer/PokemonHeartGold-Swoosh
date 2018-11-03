@@ -113,7 +113,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\extern\libs</AdditionalLibraryDirectories>
-      <AdditionalDependencies>freetype.lib;glew.lib;jpeg.lib;openal32.lib;sndfile.lib;sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;sfml-main-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>freetype.lib;glew.lib;jpeg.lib;openal32.lib;sndfile.lib;sfml-graphics-d.lib;sfml-window-d.lib;sfml-system-d.lib;sfml-audio-d.lib;sfml-main-d.lib;libtmxlite-d.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -154,7 +154,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(SolutionDir)\extern\libs;C:\Program Files (x86)\Windows Kits\10\Lib</AdditionalLibraryDirectories>
-      <AdditionalDependencies>glew.lib;jpeg.lib;openal32.lib;sndfile.lib;freetype.lib;Winmm.lib;OpenGL32.lib;sfml-system-s.lib;sfml-window-s.lib;sfml-graphics-s.lib;sfml-audio-s.lib;sfml-main.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>glew.lib;jpeg.lib;openal32.lib;sndfile.lib;freetype.lib;Winmm.lib;OpenGL32.lib;sfml-system-s.lib;sfml-window-s.lib;sfml-graphics-s.lib;sfml-audio-s.lib;sfml-main.lib;libtmxlite.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -177,6 +177,7 @@
     <ClInclude Include="ResourcePaths.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="TMXMapLayer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">

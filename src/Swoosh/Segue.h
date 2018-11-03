@@ -1,9 +1,10 @@
 #pragma once
-#include "ActivityController.h"
 #include "Timer.h"
 #include <SFML/Graphics.hpp>
 
 namespace swoosh {
+  class ActivityController;
+
   class Segue : public Activity {
     friend class ActivityController;
 
@@ -12,17 +13,23 @@ namespace swoosh {
     Activity* next;
     sf::Time duration;
     Timer timer;
+    
+    // Hack to make this lib header-only
+    void (ActivityController::*setActivityViewFunc)(Activity* activity);
 
   protected:
     const sf::Time getDuration() { return duration; }
     const sf::Time getElapsed() { return timer.getElapsed(); }
 
     void drawLastActivity(sf::RenderTexture& surface) {
-      if (last)
+      if (last) {
+        (controller.*setActivityViewFunc)(last);
         last->onDraw(surface);
+      }
     }
 
     void drawNextActivity(sf::RenderTexture& surface) {
+      (controller.*setActivityViewFunc)(next);
       next->onDraw(surface);
     }
 
