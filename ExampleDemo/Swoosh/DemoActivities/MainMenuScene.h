@@ -2,6 +2,7 @@
 #include <Swoosh\ActivityController.h>
 #include <Swoosh\Game.h>
 #include <Swoosh\Ease.h>
+#include <Swoosh\EmbedGLSL.h>
 #include <SFML\Graphics.hpp>
 #include <SFML\Audio.hpp>
 
@@ -27,6 +28,21 @@ using namespace swoosh;
 using namespace swoosh::intent;
 using namespace swoosh::game;
 
+auto MONOTONE_SHADER = GLSL
+(
+  110,
+  uniform sampler2D texture;
+  uniform float amount;
+
+  void main()
+  {
+    vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
+    float avg = (pixel.r + pixel.g + pixel.b) / 3.0;
+    pixel = mix(pixel, vec4(avg, avg, avg, 1),amount);
+    gl_FragColor = gl_Color * pixel;
+  }
+);
+
 class MainMenuScene : public Activity {
 private:
   sf::Texture* titleTexture;
@@ -34,6 +50,8 @@ private:
 
   sf::Sprite title;
   sf::Sprite overworldSnapshot;
+
+  sf::Shader shader;
 
   sf::Font   menuFont;
   sf::Text   menuText;
@@ -60,10 +78,14 @@ public:
     setOrigin(title, 0.5, 0.5);
     title.setPosition(windowSize.x / 2, windowSize.y / 2);
 
-    overworldSnapshot = sf::Sprite(overworldTexture);
+    overworldSnapshot = sf::Sprite(this->overworldTexture);
 
     // Load sounds
     themeMusic.openFromFile(THEME_MUSIC_PATH);
+
+    // Load shader
+    shader.loadFromMemory(MONOTONE_SHADER, sf::Shader::Type::Fragment);
+    shader.setUniform("texture", sf::Shader::CurrentTexture);
   }
 
   virtual void onStart() {
@@ -87,6 +109,9 @@ public:
       using intent::segue;
       getController().queuePop<segue<BlendFadeIn>>();
     }
+
+    shader.setUniform("amount", std::min(waitTimer.getElapsed().asSeconds()/4.0f,1.0f));
+
   }
 
   virtual void onLeave() {
@@ -115,7 +140,11 @@ public:
     sf::RenderWindow& window = getController().getWindow();
     setView(view);
 
-    surface.draw(overworldSnapshot);
+    sf::RenderStates states;
+    states.shader = &shader;
+
+    surface.draw(overworldSnapshot, states);
+
     surface.draw(title);
 
     double alpha = 1.0 - ease::linear(waitTimer.getElapsed().asSeconds(), 1.0f, 1.0f);

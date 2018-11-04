@@ -60,9 +60,12 @@ https://github.com/fallahn/xygine/blob/master/xygine/src/components/ComponentTil
 
 class MapLayer final : public sf::Drawable
 {
+private:
+  std::size_t layerID;
+  const tmx::Map& map;
 public:
 
-  MapLayer(const tmx::Map& map, std::size_t idx)
+  MapLayer(const tmx::Map& map, std::size_t idx) : layerID(idx), map(map)
   {
     const auto& layers = map.getLayers();
     if (map.getOrientation() == tmx::Orientation::Orthogonal &&
@@ -342,6 +345,31 @@ private:
       rt.draw(*c, states);
     }
   }
+
+  public:
+    uint32_t tileIDAtCoord (float x, float y) {
+      const auto& layers = map.getLayers();
+
+      if (layers[layerID]->getType() != tmx::Layer::Type::Tile)
+        return -1;
+
+      x = static_cast<int>(std::floor(x / map.getTileSize().x));
+      y = static_cast<int>(std::floor(y / map.getTileSize().y));
+
+      const auto bounds = map.getBounds();
+
+      int cols = static_cast<int>(std::floor(bounds.width / map.getTileSize().x));
+
+      const auto& layer = *dynamic_cast<const tmx::TileLayer*>(layers[layerID].get());
+
+      auto idx = y * cols + x;
+      if (idx >= 0 && idx < layer.getTiles().size())
+      {
+        return (layer.getTiles().at(idx).ID);
+      }
+
+      return -1;
+    }
 };
 
 #endif //SFML_ORTHO_HPP_

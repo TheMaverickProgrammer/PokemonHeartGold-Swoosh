@@ -26,29 +26,41 @@ private:
   tmx::Map map;
   MapLayer* layerZero;
   MapLayer* layerOne;
+  MapLayer* layerTwo;
   sf::View view;
 
   sf::Texture* playerTexture;
   sf::Texture overworldSnapshot;
   sf::Sprite player;
 
+  sf::Music townMusic;
+
+  enum Direction : int {
+    DOWN,
+    LEFT,
+    UP,
+    RIGHT
+  };
+
+  Timer walkAnim;
+  Direction playerDirection;
   bool inFocus;
 public:
   DemoScene(ActivityController& controller) : Activity(controller) { 
     inFocus = false;
+    townMusic.openFromFile(TOWN_MUSIC_PATH);
 
     map.load(OVERWORLD_TMX_PATH);
 
     layerZero = new MapLayer(map, 0);
     layerOne = new MapLayer(map, 1);
-    //MapLayer layerTwo(map, 2);
+    layerTwo = new MapLayer(map, 2);
 
     playerTexture = loadTexture(PLAYER_OW_PATH);
     player = sf::Sprite(*playerTexture);
 
     auto windowSize = getController().getInitialWindowSize();
 
-    setOrigin(player, 0.5, 0.5);
     player.setPosition(windowSize.x / 2, windowSize.y / 2);
 
     restart();
@@ -57,10 +69,13 @@ public:
   void restart() {
     inFocus = false;
     view = sf::View(sf::FloatRect(20.0f, 20.0f, 400.0f, 300.0f));
+    view.setCenter(37 * 16, 45 * 16);
+    playerDirection = Direction::DOWN;
   }
 
   virtual void onStart() {
     std::cout << "DemoScene onStart called" << std::endl;
+    townMusic.play();
   }
 
   virtual void onUpdate(double elapsed) {
@@ -71,15 +86,41 @@ public:
     }
 
     if (inFocus) {
+      walkAnim.start();
+      sf::View before = view;
+
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+        playerDirection = Direction::UP;
         view.setCenter(view.getCenter() - sf::Vector2f(0.0f, 2.0f));
       } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+        playerDirection = Direction::DOWN;
         view.setCenter(view.getCenter() + sf::Vector2f(0.0f, 2.0f));
       } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+        playerDirection = Direction::LEFT;
         view.setCenter(view.getCenter() - sf::Vector2f(2.0f, 0.0f));
       } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+        playerDirection = Direction::RIGHT;
         view.setCenter(view.getCenter() + sf::Vector2f(2.0f, 0.0f));
       }
+      else {
+        // Do not update animation
+        walkAnim.pause();
+      }
+      
+      // Down, left, up, right
+      std::uint32_t tile[] = {
+                      layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y+8),
+                      layerTwo->tileIDAtCoord(view.getCenter().x-8, view.getCenter().y),
+                      layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y-8),
+                      layerTwo->tileIDAtCoord(view.getCenter().x+8, view.getCenter().y)
+      };
+
+      if (tile[0] == 1132 || tile[1] == 1132 || tile[2] == 1132 || tile[3] == 1132) {
+        view = before;
+      }
+    }
+    else {
+      townMusic.setVolume(townMusic.getVolume() * 0.8);
     }
   }
 
@@ -92,6 +133,7 @@ public:
   virtual void onExit() {
     std::cout << "DemoScene onExit called" << std::endl;
     restart();
+    townMusic.stop();
   }
 
   virtual void onEnter() {
@@ -102,16 +144,27 @@ public:
   virtual void onResume() {
     inFocus = true;
     std::cout << "DemoScene onResume called" << std::endl;
+    townMusic.play();
+    townMusic.setVolume(100);
   }
 
   virtual void onDraw(sf::RenderTexture& surface) {
     sf::RenderWindow& window = getController().getWindow();
-    setView(view);
+    //setView(view);
 
+    int frame = ((int)walkAnim.getElapsed().asMilliseconds()/200) % 4;
+
+    if (frame == 3) frame = 1; 
+
+    player.setTextureRect(sf::IntRect(21 * frame, (int)playerDirection * 28, 21, 28));
+    setOrigin(player, 0.5, 0.5);
+
+    surface.setView(view);
     surface.draw(*layerZero);
     surface.draw(*layerOne);
+    // surface.draw(*layerTwo); // collision layer
 
-    player.setPosition(getView().getCenter());
+    player.setPosition(surface.getView().getCenter());
     surface.draw(player);
 
     overworldSnapshot = sf::Texture(surface.getTexture()); // copy

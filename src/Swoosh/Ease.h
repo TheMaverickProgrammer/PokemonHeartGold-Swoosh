@@ -5,7 +5,7 @@ namespace swoosh {
     static constexpr double pi = 3.14159265358979323846;
     
     template<typename T>
-    static constexpr T radians(T degrees) { return (degrees * pi) / 180.0;  }
+    static constexpr T radians(T degrees) { return (degrees * pi) / (T)180.0;  }
 
     template<typename T>
     static constexpr T interpolate(T factor, T a, T b) {
