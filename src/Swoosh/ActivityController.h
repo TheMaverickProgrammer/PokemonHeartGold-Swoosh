@@ -361,7 +361,7 @@ namespace swoosh {
     }
 
     void resetView(sf::RenderTexture& surface) {
-      surface.setView(surface.getDefaultView());
+      surface.setView(handle.getDefaultView());
     }
 
     void endSegue(swoosh::Segue* segue) {

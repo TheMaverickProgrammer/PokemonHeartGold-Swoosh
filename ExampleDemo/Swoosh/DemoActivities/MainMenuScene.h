@@ -28,21 +28,6 @@ using namespace swoosh;
 using namespace swoosh::intent;
 using namespace swoosh::game;
 
-auto MONOTONE_SHADER = GLSL
-(
-  110,
-  uniform sampler2D texture;
-  uniform float amount;
-
-  void main()
-  {
-    vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
-    float avg = (pixel.r + pixel.g + pixel.b) / 3.0;
-    pixel = mix(pixel, vec4(avg, avg, avg, 1),amount);
-    gl_FragColor = gl_Color * pixel;
-  }
-);
-
 class MainMenuScene : public Activity {
 private:
   sf::Texture* titleTexture;

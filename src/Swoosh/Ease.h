@@ -32,6 +32,25 @@ namespace swoosh {
 
       return y;
     }
+    
+    /*
+    y = (1 - abs(2-x*4) + 1)/2
+
+    sharp back and forth, no easing
+    */
+    template<typename T>
+    static constexpr T inOut(T delta, T length) {
+      T normal = 1.0 / length;
+
+      T x = delta * normal;
+
+      if (x >= 1) {
+        x = 1;
+      }
+
+      T y = (1.0 - std::abs(2.0 - x * 4.0) + 1.0) / 2.0;
+      return y;
+    }
 
     template<typename T>
     static constexpr T wideParabola(T delta, T length, T power) {

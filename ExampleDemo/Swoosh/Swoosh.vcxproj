@@ -158,6 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\Segues\BlackWashFade.h" />
     <ClInclude Include="..\..\src\Segues\BlendFadeIn.h" />
     <ClInclude Include="..\..\src\Segues\Checkerboard.h" />
     <ClInclude Include="..\..\src\Segues\HorizontalOpen.h" />
@@ -169,11 +170,14 @@
     <ClInclude Include="..\..\src\Segues\WhiteWashFade.h" />
     <ClInclude Include="..\..\src\Segues\ZoomIn.h" />
     <ClInclude Include="..\..\src\Segues\ZoomOut.h" />
+    <ClInclude Include="ActionList.h" />
+    <ClInclude Include="BattleActions.h" />
     <ClInclude Include="Button.h" />
     <ClInclude Include="DemoActivities\BattleScene.h" />
     <ClInclude Include="DemoActivities\DemoScene.h" />
     <ClInclude Include="DemoActivities\MainMenuScene.h" />
     <ClInclude Include="Particle.h" />
+    <ClInclude Include="Pokemon.h" />
     <ClInclude Include="ResourcePaths.h" />
     <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="pch.h" />

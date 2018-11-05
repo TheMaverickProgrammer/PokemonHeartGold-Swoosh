@@ -81,11 +81,15 @@ public:
   virtual void onUpdate(double elapsed) {
     sf::RenderWindow& window = getController().getWindow();
 
-    if (inFocus && sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
-      getController().push<segue<WhiteWashFade>::to<MainMenuScene>>(overworldSnapshot, false); // Pass into next scene
-    }
-
     if (inFocus) {
+      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+        getController().push<segue<WhiteWashFade>::to<MainMenuScene>>(overworldSnapshot, false); // Pass into next scene
+      }
+
+      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
+        getController().push<segue<Checkerboard>::to<BattleScene>>();
+      }
+
       walkAnim.start();
       sf::View before = view;
 
@@ -109,10 +113,10 @@ public:
       
       // Down, left, up, right
       std::uint32_t tile[] = {
-                      layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y+8),
-                      layerTwo->tileIDAtCoord(view.getCenter().x-8, view.getCenter().y),
-                      layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y-8),
-                      layerTwo->tileIDAtCoord(view.getCenter().x+8, view.getCenter().y)
+                      layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y+7),
+                      layerTwo->tileIDAtCoord(view.getCenter().x-7, view.getCenter().y),
+                      layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y-7),
+                      layerTwo->tileIDAtCoord(view.getCenter().x+7, view.getCenter().y)
       };
 
       if (tile[0] == 1132 || tile[1] == 1132 || tile[2] == 1132 || tile[3] == 1132) {
@@ -132,7 +136,6 @@ public:
 
   virtual void onExit() {
     std::cout << "DemoScene onExit called" << std::endl;
-    restart();
     townMusic.stop();
   }
 

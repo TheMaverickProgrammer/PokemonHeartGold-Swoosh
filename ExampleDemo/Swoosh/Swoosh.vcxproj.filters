@@ -87,6 +87,18 @@
     <ClInclude Include="TMXMapLayer.h">
       <Filter>Source Files\Demo\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="Pokemon.h">
+      <Filter>Source Files\Demo\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\BlackWashFade.h">
+      <Filter>Source Files\Demo\Segues</Filter>
+    </ClInclude>
+    <ClInclude Include="ActionList.h">
+      <Filter>Source Files\Demo\Utils</Filter>
+    </ClInclude>
+    <ClInclude Include="BattleActions.h">
+      <Filter>Source Files\Demo\Utils</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
