@@ -34,7 +34,6 @@ class ActionList {
   friend class ClearPreviousActions;
 private:
   std::vector<ActionItem*> items;
-  std::vector<ActionItem*> drawables;
   bool clearFlag;
 public:
   void add(ActionItem* item) {
@@ -53,41 +52,38 @@ public:
     }
 
     items.clear();
-    drawables.clear();
   }
 
   void update(double elapsed) {
-    drawables.clear();
-
-    aftercleanup:
-    int index = 0;
-    for (auto item : items) {
-      if (item->isDone()) {
-        delete item;
-        items.erase(items.begin() + index);
+    for (int i = 0; i < items.size();) {
+      if (items[i]->isDone()) {
+        delete items[i];
+        items.erase(items.begin() + i);
         continue;
       }
 
-      drawables.push_back(item);
-      index++;
-
-      item->update(elapsed);
+      items[i]->update(elapsed);
 
       if (clearFlag) {
         clearFlag = false;
-        drawables.clear();
-        goto aftercleanup; // abort and return next to cleanup
+        i = 0; 
+        continue; // startover, the list has been modified
       }
 
-      if (item->isBlocking) {
+      if (items[i]->isBlocking) {
         break;
       }
+
+      i++;
     }
   }
 
   void draw(sf::RenderTexture& surface) {
-    for (auto item : drawables) {
+    for (auto item : items) {
       item->draw(surface);
+      if (item->isBlocking) {
+        break;
+      }
     }
   }
 
@@ -111,7 +107,10 @@ public:
   }
 
   virtual void update(double elapsed) {
-   for (int i = 0; i < list->items.size(); i++) {
+    if (isDone())
+      return;
+
+    for (int i = 0; i < list->items.size();) {
       ActionItem* item = list->items[i];
       if (item != this) {
         delete item;
@@ -123,7 +122,7 @@ public:
       }
     }
 
-   list->clearFlag = true;
+    list->clearFlag = true;
     markDone();
   }
 

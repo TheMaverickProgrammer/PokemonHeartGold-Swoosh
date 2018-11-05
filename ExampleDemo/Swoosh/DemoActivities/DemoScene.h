@@ -26,7 +26,8 @@ private:
   tmx::Map map;
   MapLayer* layerZero;
   MapLayer* layerOne;
-  MapLayer* layerTwo;
+  MapLayer* layerTwo;   // collision
+  MapLayer* layerThree; // spawn areas
   sf::View view;
 
   sf::Texture* playerTexture;
@@ -52,9 +53,10 @@ public:
 
     map.load(OVERWORLD_TMX_PATH);
 
-    layerZero = new MapLayer(map, 0);
-    layerOne = new MapLayer(map, 1);
-    layerTwo = new MapLayer(map, 2);
+    layerZero  = new MapLayer(map, 0);
+    layerOne   = new MapLayer(map, 1);
+    layerTwo   = new MapLayer(map, 2);
+    layerThree = new MapLayer(map, 3);
 
     playerTexture = loadTexture(PLAYER_OW_PATH);
     player = sf::Sprite(*playerTexture);
@@ -86,9 +88,7 @@ public:
         getController().push<segue<WhiteWashFade>::to<MainMenuScene>>(overworldSnapshot, false); // Pass into next scene
       }
 
-      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Q)) {
-        getController().push<segue<Checkerboard>::to<BattleScene>>();
-      }
+      bool isWalking = false;
 
       walkAnim.start();
       sf::View before = view;
@@ -96,21 +96,26 @@ public:
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
         playerDirection = Direction::UP;
         view.setCenter(view.getCenter() - sf::Vector2f(0.0f, 2.0f));
+        isWalking = true;
       } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
         playerDirection = Direction::DOWN;
         view.setCenter(view.getCenter() + sf::Vector2f(0.0f, 2.0f));
+        isWalking = true;
       } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
         playerDirection = Direction::LEFT;
         view.setCenter(view.getCenter() - sf::Vector2f(2.0f, 0.0f));
+        isWalking = true;
       } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
         playerDirection = Direction::RIGHT;
         view.setCenter(view.getCenter() + sf::Vector2f(2.0f, 0.0f));
+        isWalking = true;
       }
       else {
         // Do not update animation
         walkAnim.pause();
       }
       
+      // Check the collision layer....
       // Down, left, up, right
       std::uint32_t tile[] = {
                       layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y+7),
@@ -121,6 +126,24 @@ public:
 
       if (tile[0] == 1132 || tile[1] == 1132 || tile[2] == 1132 || tile[3] == 1132) {
         view = before;
+        isWalking = false; // Do not flag for battles if we haven't moved
+      }
+
+      // Check the battle spawn layer....
+      // Down, left, up, right
+      std::uint32_t spawn_tile[] = {
+                      layerThree->tileIDAtCoord(view.getCenter().x, view.getCenter().y + 2),
+                      layerThree->tileIDAtCoord(view.getCenter().x - 2, view.getCenter().y),
+                      layerThree->tileIDAtCoord(view.getCenter().x, view.getCenter().y - 2),
+                      layerThree->tileIDAtCoord(view.getCenter().x + 2, view.getCenter().y)
+      };
+
+      if ((spawn_tile[0] == 1127 || spawn_tile[1] == 1127 || spawn_tile[2] == 1127 || spawn_tile[3] == 1127) && isWalking) {
+        int random_battle = rand() % 100;
+
+        if (random_battle > 90) {
+          getController().push<segue<Checkerboard>::to<BattleScene>>();
+        }
       }
     }
     else {

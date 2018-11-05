@@ -50,6 +50,26 @@ public:
   }
 };
 
+class TakeDamage : public ActionItem {
+private:
+  pokemon::monster& monster;
+  int damage;
+public:
+  TakeDamage(pokemon::monster& ref, int damage) : monster(ref) {
+    this->damage = damage;
+  }
+
+  ~TakeDamage() {
+  }
+
+  virtual void update(double elapsed) {
+    monster.hp -= damage;
+    markDone();
+  }
+
+  virtual void draw(sf::RenderTexture& surface) {
+  }
+};
 
 class FaintAction : public ActionItem {
 private:
@@ -67,7 +87,7 @@ public:
 
   virtual void update(double elapsed) {
     total += elapsed;
-    double alpha = 1.0 - ease::linear(total, 1.0, 1.0);
+    double alpha = 1.0 - ease::linear(total, 0.5, 1.0);
 
     ref.setTextureRect(sf::IntRect(0, 0, original.width, original.height*alpha));
     game::setOrigin(ref, 0.5f, 1.0f); // update origin pos
@@ -95,11 +115,11 @@ public:
   virtual void update(double elapsed) {
     total += elapsed;
 
-    double alpha = ease::inOut(total, 1.0);
-    int offsetx = 20.0 * alpha * (facing ? -1 : 1);
+    double alpha = ease::inOut(total, 0.50);
+    int offsetx = 50.0 * alpha * (facing ? -1 : 1);
     ref.setPosition(original.x + offsetx, original.y);
 
-    if (total > 1.0) {
+    if (total > 0.50) {
       markDone();
     }
   }
@@ -113,16 +133,60 @@ class TailWhipAction : public BlockingActionItem {
 private:
   sf::Sprite& ref;
   double total;
+  sf::Vector2f original;
+
 public:
   TailWhipAction(sf::Sprite& ref) : ref(ref) {
     total = 0;
+    original = ref.getPosition();
   }
+
+  ~TailWhipAction() { ref.setPosition(original); }
 
   virtual void update(double elapsed) {
     total += elapsed;
-    double alpha = ease::wideParabola(total, 1.0, 1.0);
-    double scale = 1.0 + (alpha * 0.25);
-    ref.setScale(scale, scale);
+    double alpha = sin(total*10) * 15;
+    ref.setPosition(alpha + original.x, original.y);
+
+    if (total >= 1.5) {
+      markDone();
+      ref.setPosition(original);
+    }
+  }
+
+  virtual void draw(sf::RenderTexture& surface) {
+    surface.draw(ref);
+  }
+};
+
+class RoarAction : public BlockingActionItem {
+private:
+  sf::Sprite& ref;
+  double total;
+  bool swell;
+  bool doOnce;
+  sf::SoundBuffer& buffer;
+  sf::Sound& sound;
+public:
+  RoarAction(sf::Sprite& ref, sf::SoundBuffer& buffer, sf::Sound& roar, bool swell=true) : buffer(buffer), sound(roar), swell(swell), ref(ref) {
+    total = 0;
+    doOnce = false;
+  }
+
+  virtual void update(double elapsed) {
+    if (!doOnce) {
+      sound.setBuffer(buffer);
+      sound.play();
+      doOnce = true;
+    }
+
+    total += elapsed;
+
+    if (swell) {
+      double alpha = ease::wideParabola(total, 1.0, 1.0);
+      double scale = 1.0 + (alpha * 0.25);
+      ref.setScale(scale, scale);
+    }
 
     if (total >= 2.0)
       markDone();
@@ -130,6 +194,31 @@ public:
 
   virtual void draw(sf::RenderTexture& surface) {
     surface.draw(ref);
+  }
+};
+
+
+class WaitForButtonPressAction : public BlockingActionItem {
+private:
+  sf::Keyboard::Key button;
+  std::string& output;
+  std::string input;
+  bool isPressed;
+public:
+  WaitForButtonPressAction(std::string& output, std::string input, sf::Keyboard::Key button) : output(output), button(button) {
+    this->input = input;
+    isPressed = false;
+  }
+
+  virtual void update(double elapsed) {
+    output = input;
+    if (!sf::Keyboard::isKeyPressed(button) && isPressed)
+      markDone();
+    else if (sf::Keyboard::isKeyPressed(button) && !isPressed)
+      isPressed = true;
+  }
+
+  virtual void draw(sf::RenderTexture& surface) {
   }
 };
 
@@ -160,9 +249,12 @@ private:
   sf::Sprite& ref;
   sf::Shader shader;
   sf::Texture* ddown;
+  sf::SoundBuffer& buffer;
+  sf::Sound& sound;
   double total;
+  bool playedOnce;
 public:
-  DefenseDownAction(sf::Sprite& ref) : ref(ref) {
+  DefenseDownAction(sf::Sprite& ref, sf::SoundBuffer& buffer, sf::Sound& sound) : buffer(buffer), sound(sound), ref(ref) {
     shader.loadFromMemory(MOVING_TEXTURE_SHADER, sf::Shader::Type::Fragment);
     shader.setUniform("texture", sf::Shader::CurrentTexture);
 
@@ -171,6 +263,8 @@ public:
     shader.setUniform("pattern", *ddown);
 
     total = 0;
+
+    playedOnce = false;
   }
 
   ~DefenseDownAction() {
@@ -178,6 +272,12 @@ public:
   }
 
   virtual void update(double elapsed) {
+    if (!playedOnce) {
+      sound.setBuffer(buffer);
+      sound.play();
+      playedOnce = true;
+    }
+
     total += elapsed;
     double alpha = ease::wideParabola(total, 2.0, 1.0);
 
@@ -199,9 +299,12 @@ private:
   sf::Sprite& ref;
   sf::Shader shader;
   sf::Texture* aup;
+  sf::SoundBuffer& buffer;
+  sf::Sound& sound;
   double total;
+  bool playedOnce;
 public:
-  AttackUpAction(sf::Sprite& ref) : ref(ref) {
+  AttackUpAction(sf::Sprite& ref, sf::SoundBuffer& buffer, sf::Sound& sound) : buffer(buffer), sound(sound), ref(ref) {
     shader.loadFromMemory(MOVING_TEXTURE_SHADER, sf::Shader::Type::Fragment);
     shader.setUniform("texture", sf::Shader::CurrentTexture);
 
@@ -210,6 +313,8 @@ public:
     shader.setUniform("pattern", *aup);
 
     total = 0;
+
+    playedOnce = false;
   }
 
   ~AttackUpAction() {
@@ -217,6 +322,12 @@ public:
   }
 
   virtual void update(double elapsed) {
+    if (!playedOnce) {
+      sound.setBuffer(buffer);
+      sound.play();
+      playedOnce = true;
+    }
+
     total += elapsed;
     double alpha = ease::wideParabola(total, 2.0, 1.0);
 
