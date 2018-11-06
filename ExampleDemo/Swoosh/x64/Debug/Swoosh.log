@@ -1,4 +1,5 @@
-﻿  Demo.cpp
+﻿  pch.cpp
+  Demo.cpp
 c:\users\bountyhunter\code\heartgoldswoosh\src\swoosh\game.h(53): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
@@ -110,28 +111,30 @@ c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\battleactions.h(42
           [
               T=float
           ]
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\battleactions.h(93): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\battleactions.h(132): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\battleactions.h(106): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\battleactions.h(152): warning C4244: 'argument': conversion from 'double' to 'T', possible loss of data
           with
           [
               T=int
           ]
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\battleactions.h(162): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\battleactions.h(192): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\battleactions.h(231): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(203): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(509): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(540): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(541): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(673): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(677): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(681): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(685): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(691): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(702): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(712): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(722): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(735): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\battleactions.h(182): warning C4244: 'initializing': conversion from 'double' to 'int', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\battleactions.h(221): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\battleactions.h(261): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\battleactions.h(307): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(211): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(343): warning C4305: 'argument': truncation from 'double' to 'float'
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(558): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(590): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(591): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(736): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(740): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(744): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(748): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(754): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(765): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(775): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(785): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(798): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(64): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
           with
           [
@@ -218,9 +221,10 @@ c:\users\bountyhunter\code\heartgoldswoosh\src\swoosh\ease.h(17): warning C4244:
           [
               T=float
           ]
-  c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(531): note: see reference to function template instantiation 'T swoosh::ease::linear<float>(T,T,T)' being compiled
+  c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\battlescene.h(581): note: see reference to function template instantiation 'T swoosh::ease::linear<float>(T,T,T)' being compiled
           with
           [
               T=float
           ]
+     Creating library C:\Users\Bountyhunter\Code\HeartGoldSwoosh\ExampleDemo\x64\Debug\Swoosh.lib and object C:\Users\Bountyhunter\Code\HeartGoldSwoosh\ExampleDemo\x64\Debug\Swoosh.exp
   Swoosh.vcxproj -> C:\Users\Bountyhunter\Code\HeartGoldSwoosh\ExampleDemo\x64\Debug\Swoosh.exe

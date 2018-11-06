@@ -55,11 +55,15 @@ private:
   pokemon::monster& monster;
   int damage;
   int health;
+  sf::SoundBuffer& buffer;
+  sf::Sound& sound;
+  bool playOnce;
 public:
 
-  TakeDamage(pokemon::monster& ref, int damage) : monster(ref), BlockingActionItem() {
+  TakeDamage(pokemon::monster& ref, int damage, sf::SoundBuffer& buffer, sf::Sound& sound) : buffer(buffer), sound(sound), monster(ref), BlockingActionItem() {
     this->damage = damage;
     this->health = ref.hp;
+    playOnce = false;
   }
 
   ~TakeDamage() {
@@ -68,6 +72,12 @@ public:
   }
 
   virtual void update(double elapsed) {
+    if (!playOnce) {
+      playOnce = true;
+      sound.setBuffer(buffer);
+      sound.play();
+    }
+
     if (monster.hp > health - damage) {
       monster.hp -= 1;
     }
@@ -84,25 +94,35 @@ class GainXPAction : public BlockingActionItem {
 private:
   pokemon::monster& monster;
   pokemon::monster& defeated;
+  sf::SoundBuffer& buffer;
+  sf::Sound& sound;
   int xp;
+  bool playOnce;
 public:
 
-  GainXPAction(pokemon::monster& ref, pokemon::monster& defeated) : monster(ref), defeated(defeated), BlockingActionItem() {
+  GainXPAction(pokemon::monster& ref, pokemon::monster& defeated, sf::SoundBuffer& buffer, sf::Sound& sound) : buffer(buffer), sound(sound), monster(ref), defeated(defeated), BlockingActionItem() {
     // In a real game, increase xp by level and other factors
     // In ours, guess the level by the difference in max hp. 
     this->xp = ref.xp + std::ceil((defeated.xp*1.5*(defeated.maxhp / ref.maxhp)));
+    playOnce = false;
   }
 
   ~GainXPAction() {
     monster.xp = this->xp;
-
   }
 
   virtual void update(double elapsed) {
+    if (!playOnce) {
+      playOnce = true;
+      sound.setBuffer(buffer);
+      sound.play();
+    }
+
     if (monster.xp < this->xp) {
       monster.xp += 1;
     }
     else {
+      sound.stop(); // interupt
       markDone();
     }
   }
@@ -127,12 +147,12 @@ public:
 
   virtual void update(double elapsed) {
     total += elapsed;
-    double alpha = 1.0 - ease::linear(total, 0.5, 1.0);
+    double alpha = 1.0 - ease::linear(total, 0.25, 1.0);
 
     ref.setTextureRect(sf::IntRect(0, 0, original.width, original.height*alpha));
     game::setOrigin(ref, ref.getOrigin().x/ref.getTexture()->getSize().x, 1.0f); // update origin pos
 
-    if (total >= 0.5)
+    if (total >= 0.25)
       markDone();
   }
 
@@ -177,16 +197,25 @@ private:
   sf::Sprite& ref;
   double total;
   sf::Vector2f original;
-
+  sf::SoundBuffer& buffer;
+  sf::Sound& sound;
+  bool doOnce;
 public:
-  TailWhipAction(sf::Sprite& ref) : ref(ref) {
+  TailWhipAction(sf::Sprite& ref, sf::SoundBuffer& buffer, sf::Sound& sound) : buffer(buffer), sound(sound), ref(ref) {
     total = 0;
     original = ref.getPosition();
+    doOnce = false;
   }
 
   ~TailWhipAction() { ref.setPosition(original); }
 
   virtual void update(double elapsed) {
+    if (!doOnce) {
+      sound.setBuffer(buffer);
+      sound.play();
+      doOnce = true;
+    }
+
     total += elapsed;
     double alpha = sin(total*10) * 15;
     ref.setPosition(alpha + original.x, original.y);
@@ -194,6 +223,53 @@ public:
     if (total >= 1.5) {
       markDone();
       ref.setPosition(original);
+    }
+  }
+
+  virtual void draw(sf::RenderTexture& surface) {
+    surface.draw(ref);
+  }
+};
+
+
+class FlyAction : public BlockingActionItem {
+private:
+  sf::Sprite& ref;
+  pokemon::monster& monster;
+  double total;
+  sf::SoundBuffer& buffer;
+  sf::Sound& sound;
+  bool doOnce;
+public:
+  FlyAction(sf::Sprite& ref, pokemon::monster& monster, sf::SoundBuffer& buffer, sf::Sound& sound) : monster(monster), buffer(buffer), sound(sound), ref(ref) {
+    total = 0;
+    doOnce = false;
+  }
+
+  ~FlyAction() { ; }
+
+  virtual void update(double elapsed) {
+    if (!doOnce) {
+      sound.setBuffer(buffer);
+      sound.play();
+      doOnce = true;
+    }
+
+    if (!monster.isFlying) {
+      total += elapsed;
+      double alpha = ease::linear(total, 0.25, 1.0);
+      ref.setScale(1.0 - alpha, 1.0 + (alpha * 2));
+
+      if (total >= 0.25) {
+        markDone();
+        ref.setScale(0, 0); // hide
+        monster.isFlying = true;
+      }
+    }
+    else {
+      ref.setScale(1, 1);
+      monster.isFlying = false;
+      markDone();
     }
   }
 
@@ -231,8 +307,14 @@ public:
       ref.setScale(scale, scale);
     }
 
-    if (total >= 2.0)
-      markDone();
+    if (swell) { // intro is longer
+      if (total >= 2.0)
+        markDone();
+    }
+    else { // fainting is quicker
+      if (total >= 0.75)
+        markDone();
+    }
   }
 
   virtual void draw(sf::RenderTexture& surface) {
@@ -241,33 +323,64 @@ public:
 };
 
 
-class WaitForButtonPressAction : public BlockingActionItem {
+class ChangeText : public ActionItem {
 private:
-  sf::Keyboard::Key button;
-  std::string& output;
   std::string input;
-  bool isPressed;
-  bool wasHeldBefore;
+  std::string& output;
 public:
-  WaitForButtonPressAction(std::string& output, std::string input, sf::Keyboard::Key button) : output(output), button(button) {
+  ChangeText(std::string& output, std::string input) : output(output), ActionItem() {
     this->input = input;
-    isPressed = false;
-    wasHeldBefore = sf::Keyboard::isKeyPressed(button);
   }
 
   virtual void update(double elapsed) {
     output = input;
-    if (!sf::Keyboard::isKeyPressed(button) && isPressed) {
+    markDone();
+  }
+
+  virtual void draw(sf::RenderTexture& surface) {
+  }
+};
+
+class WaitForButtonPressAction : public BlockingActionItem {
+private:
+  sf::Keyboard::Key button;
+  sf::SoundBuffer& buffer;
+  sf::Sound& sound;
+  bool isPressed;
+  bool wasHeldBefore;
+  double total;
+public:
+  WaitForButtonPressAction(sf::Keyboard::Key button, sf::SoundBuffer& buffer, sf::Sound& sound)
+    : buffer(buffer), sound(sound), button(button), BlockingActionItem() {
+    isPressed = false;
+    total = 0;
+    wasHeldBefore = false;
+  }
+
+  virtual void update(double elapsed) {
+    if (total == 0) {
+      wasHeldBefore = sf::Keyboard::isKeyPressed(button);
+    }
+
+    total += elapsed;
+
+    if (!sf::Keyboard::isKeyPressed(button)) {
       if (wasHeldBefore) {
         wasHeldBefore = false;
         isPressed = false;
       }
-      else {
+      else if(isPressed) {
         markDone();
       }
+      else {
+        isPressed = false;
+      }
     }
-    else if (sf::Keyboard::isKeyPressed(button) && !isPressed)
+    else if (sf::Keyboard::isKeyPressed(button) && !isPressed && !wasHeldBefore) {
+      sound.setBuffer(buffer);
+      sound.play();
       isPressed = true;
+    }
   }
 
   virtual void draw(sf::RenderTexture& surface) {

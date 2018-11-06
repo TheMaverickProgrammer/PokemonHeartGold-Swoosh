@@ -108,6 +108,14 @@ private:
   sf::SoundBuffer playerRoarBuffer;
   sf::SoundBuffer statsFallBuffer;
   sf::SoundBuffer statsRiseBuffer;
+  sf::SoundBuffer selectBuffer;
+  sf::SoundBuffer attackWeakBuffer;
+  sf::SoundBuffer attackNormalBuffer;
+  sf::SoundBuffer attackSuperBuffer;
+  sf::SoundBuffer xpBuffer;
+  sf::SoundBuffer tailWhipBuffer;
+  sf::SoundBuffer flyBuffer;
+
   sf::Sound sound;
   
   sf::View view;
@@ -229,8 +237,9 @@ private:
         this->ref->actions.add(new IdleAction(ref->playerSprite));
         this->ref->actions.add(new RoarAction(ref->wildSprite, ref->wildRoarBuffer, ref->sound, false));
         this->ref->actions.add(new FaintAction(ref->wildSprite));
-        this->ref->actions.add(new GainXPAction(ref->playerMonsters[0], ref->wild));
-        this->ref->actions.add(new WaitForButtonPressAction(this->ref->output, std::string() + ref->wild.name + " fainted!", sf::Keyboard::Key::Enter));
+        this->ref->actions.add(new GainXPAction(ref->playerMonsters[0], ref->wild, ref->xpBuffer, ref->sound));
+        this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->wild.name + " fainted!"));
+        this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
         leaveScene = true;
       }
       
@@ -243,16 +252,21 @@ private:
         this->ref->actions.add(new IdleAction(ref->wildSprite));
         this->ref->actions.add(new RoarAction(ref->playerSprite, ref->playerRoarBuffer, ref->sound, false));
         this->ref->actions.add(new FaintAction(ref->playerSprite));
-        this->ref->actions.add(new WaitForButtonPressAction(this->ref->output, std::string() + ref->playerMonsters[0].name + " fainted!", sf::Keyboard::Key::Enter));
+        this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->playerMonsters[0].name + " fainted!"));
+        this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
+
         
         if (ref->playerMonsters.size() - 1 == 0) {
           // we're out of pokemon
-          this->ref->actions.add(new WaitForButtonPressAction(this->ref->output, std::string() + "Trainer whited out!", sf::Keyboard::Key::Enter));
+          this->ref->actions.add(new ChangeText(ref->output, std::string() + "Trainer whited out!"));
+          this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
+
           leaveScene = true;
         }
         else {
-          this->ref->actions.add(new WaitForButtonPressAction(this->ref->output, std::string() + "Go " + ref->playerMonsters[1].name + "!", sf::Keyboard::Key::Enter));
+          this->ref->actions.add(new ChangeText(ref->output, std::string() + "Go " + ref->playerMonsters[1].name + "!"));
           this->ref->actions.add(new SpawnNewPokemon(this->ref));
+          this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
           this->ref->actions.add(new RoarAction(ref->playerSprite, ref->playerRoarBuffer, ref->sound));
           this->ref->actions.add(new SignalRoundOver(this->ref));
 
@@ -279,6 +293,13 @@ public:
     battleMusic.openFromFile(BATTLE_MUSIC_PATH);
     statsFallBuffer.loadFromFile(STATS_LOWER_SFX);
     statsRiseBuffer.loadFromFile(STATS_RISE_SFX);
+    selectBuffer.loadFromFile(SELECT_SFX);
+    attackWeakBuffer.loadFromFile(HIT_WEAK_SFX);
+    attackNormalBuffer.loadFromFile(HIT_NORMAL_SFX);
+    attackSuperBuffer.loadFromFile(HIT_SUPER_SFX);
+    xpBuffer.loadFromFile(XP_SFX);
+    tailWhipBuffer.loadFromFile(TAIL_WHIP_SFX);
+    flyBuffer.loadFromFile(FLY_SFX);
     sound.setVolume(30);
 
     // Load shader
@@ -319,7 +340,7 @@ public:
     // Load font
     menuFont.loadFromFile(GAME_FONT);
     menuText.setFont(menuFont);
-    menuText.setScale(0.5, 0.5);
+    menuText.setScale(0.45, 0.45);
 
     colSelect = rowSelect = 0;
   }
@@ -392,41 +413,69 @@ public:
     if (first == &wild)
       facing = FACING::FRONT;
     
-    if (firstchoice->name == "tackle") {
-      actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " used tackle!", sf::Keyboard::Enter));
-      actions.add(new TackleAction(*firstSprite, facing));
-      actions.add(new TakeDamage(*second, firstchoice->damage));
+    if (first->isFlying) {
+      actions.add(new ChangeText(output, std::string(first->name) + " is flying!"));
+      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+      actions.add(new FlyAction(*firstSprite, *first, flyBuffer, sound));
+      actions.add(new ChangeText(output, std::string(first->name) + " attacked\nform above!"));
+      actions.add(new TakeDamage(*second, firstchoice->damage, attackNormalBuffer, sound));
+      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
       actions.add(new SignalCheckHP(this));
+      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
     }
-    else if (firstchoice->name == "tail whip") {
-      actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " used tail whip!", sf::Keyboard::Enter));
-      actions.add(new TailWhipAction(*firstSprite));
-      actions.add(new DefenseDownAction(*secondSprite, statsFallBuffer, sound));
-      actions.add(new WaitForButtonPressAction(output, std::string(second->name) + "'s defense\nfell sharply!", sf::Keyboard::Enter));
-      actions.add(new SignalCheckHP(this));
-    }
-    else if (firstchoice->name == "roar") {
-      actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " used roar!", sf::Keyboard::Enter));
-      actions.add(new RoarAction(*firstSprite, *firstRoarBuffer, sound));
-      actions.add(new AttackUpAction(*firstSprite, statsRiseBuffer, sound));
-      actions.add(new WaitForButtonPressAction(output, std::string(first->name) + "'s attack\nrose!", sf::Keyboard::Enter));
-      actions.add(new SignalCheckHP(this));
-    }
-    else if (firstchoice->name == "thunder") {
-      actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " used thunder!", sf::Keyboard::Enter));
-      actions.add(new TakeDamage(*second, firstchoice->damage));
-      actions.add(new SignalCheckHP(this));
-    }
-    else if (firstchoice->name == "fly") {
-      actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " used fly!", sf::Keyboard::Enter));
-      actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " flew\nup into the sky!", sf::Keyboard::Enter));
-      actions.add(new SignalCheckHP(this));
-    }
-    else if (firstchoice->name == "nomove") {
-      actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " is struggling!", sf::Keyboard::Enter));
-      actions.add(new TakeDamage(*second, firstchoice->damage));
-      actions.add(new TakeDamage(*first, firstchoice->damage));
-      actions.add(new SignalCheckHP(this));
+    else {
+      if (firstchoice->name == "tackle") {
+        actions.add(new ChangeText(output, std::string(first->name) + " used tackle!"));
+        actions.add(new TackleAction(*firstSprite, facing));
+        actions.add(new TakeDamage(*second, firstchoice->damage, attackNormalBuffer, sound));
+        actions.add(new SignalCheckHP(this));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+
+      }
+      else if (firstchoice->name == "tail whip") {
+        actions.add(new ChangeText(output, std::string(first->name) + " used tail whip!"));
+        actions.add(new TailWhipAction(*firstSprite, tailWhipBuffer, sound));
+        actions.add(new DefenseDownAction(*secondSprite, statsFallBuffer, sound));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+        actions.add(new ChangeText(output, std::string(second->name) + "'s defense\nfell sharply!"));
+        actions.add(new SignalCheckHP(this));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+
+      }
+      else if (firstchoice->name == "roar") {
+        actions.add(new ChangeText(output, std::string(first->name) + " used roar!"));
+        actions.add(new RoarAction(*firstSprite, *firstRoarBuffer, sound));
+        actions.add(new AttackUpAction(*firstSprite, statsRiseBuffer, sound));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+        actions.add(new ChangeText(output, std::string(first->name) + "'s attack\nrose!"));
+        actions.add(new SignalCheckHP(this));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+
+      }
+      else if (firstchoice->name == "thunder") {
+        actions.add(new ChangeText(output, std::string(first->name) + " used thunder!"));
+        actions.add(new TakeDamage(*second, firstchoice->damage, attackNormalBuffer, sound));
+        actions.add(new SignalCheckHP(this));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+
+      }
+      else if (firstchoice->name == "fly") {
+        actions.add(new FlyAction(*firstSprite, *first, flyBuffer, sound));
+        actions.add(new ChangeText(output, std::string(first->name) + " used fly!"));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+        actions.add(new ChangeText(output, std::string(first->name) + " flew\nup into the sky!"));
+        actions.add(new SignalCheckHP(this));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+
+      }
+      else if (firstchoice->name == "nomove") {
+        actions.add(new ChangeText(output, std::string(first->name) + " is struggling!"));
+        actions.add(new TakeDamage(*second, firstchoice->damage, attackNormalBuffer, sound));
+        actions.add(new TakeDamage(*first, firstchoice->damage, attackNormalBuffer, sound));
+        actions.add(new SignalCheckHP(this));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+
+      }
     }
   }
 
@@ -516,8 +565,9 @@ public:
         actions.add(new BobAction(playerSprite));
 
         if (!doIntro) {
+          actions.add(new ChangeText(output, "A wild " + std::string(wild.name) + " appeard!"));
           actions.add(new RoarAction(wildSprite, wildRoarBuffer, sound));
-          actions.add(new WaitForButtonPressAction(output, "A wild " + std::string(wild.name) + " appeard!", sf::Keyboard::Enter));
+          actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
           actions.add(new SignalRoundOver(this)); // Prepare for keyboard interaction
           doIntro = true;
         }
@@ -572,31 +622,44 @@ public:
 
       const pokemon::moves* choice = &pokemon::nomove;
 
-      if (colSelect == 0 && rowSelect == 0) {
-        choice = playerMonsters[0].move1;
-      }
+      if (playerMonsters[0].isFlying) {
+        isKeyDown = false; 
+        canInteract = false;
+        choice = &pokemon::fly;
 
-      if (colSelect == 1 && rowSelect == 0) {
-        choice = playerMonsters[0].move2;
+        actions.add(new ChangeText(output, "Your pokemon is still\nin the sky!"));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Space, selectBuffer, sound));
+        generateBattleActions(*choice);
       }
+      else {
+        if (colSelect == 0 && rowSelect == 0) {
+          choice = playerMonsters[0].move1;
+        }
 
-      if (colSelect == 0 && rowSelect == 1) {
-        choice = playerMonsters[0].move3;
-      }
+        if (colSelect == 1 && rowSelect == 0) {
+          choice = playerMonsters[0].move2;
+        }
 
-      if (colSelect == 1 && rowSelect == 1) {
-        choice = playerMonsters[0].move4;
+        if (colSelect == 0 && rowSelect == 1) {
+          choice = playerMonsters[0].move3;
+        }
+
+        if (colSelect == 1 && rowSelect == 1) {
+          choice = playerMonsters[0].move4;
+        }
       }
 
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !isKeyDown) {
         if (choice != nullptr) {
           isKeyDown = true;
-          canInteract = false;
-          generateBattleActions(*choice);
+          sound.setBuffer(selectBuffer);
+          sound.play();
         } // else ignore or play a buzzer sound
       }
       else if (canInteract && !sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && isKeyDown) {
         isKeyDown = false; // force player to release key to press again
+        canInteract = false;
+        generateBattleActions(*choice);
       }
     }
 

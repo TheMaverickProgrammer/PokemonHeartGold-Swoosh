@@ -21,6 +21,14 @@ const char* ODISH_PATH[]    = { "resources/battle/pokemon/back/odish.png", "reso
 
 constexpr auto STATS_LOWER_SFX = "resources/sfx/stats_lower.wav";
 constexpr auto STATS_RISE_SFX  = "resources/sfx/stats_rise.wav";
+constexpr auto FLY_SFX = "resources/sfx/fly.wav";
+constexpr auto XP_SFX = "resources/sfx/xp.wav";
+constexpr auto TAIL_WHIP_SFX = "resources/sfx/tail_whip.wav";
+constexpr auto SELECT_SFX = "resources/sfx/select.wav";
+constexpr auto THUNDER_SFX = "resources/sfx/thunder_bolt.wav";
+constexpr auto HIT_WEAK_SFX = "resources/sfx/hit_weak.wav";
+constexpr auto HIT_NORMAL_SFX = "resources/sfx/hit_normal.wav";
+constexpr auto HIT_SUPER_SFX = "resources/sfx/hit_super.wav";
 
 constexpr auto GRASS_AREA   = "resources/battle/area.png";
 constexpr auto GRASS_PAD_BG = "resources/battle/grass_battle_bg.png";
