@@ -103,13 +103,15 @@ public:
   GainXPAction(pokemon::monster& ref, pokemon::monster& defeated, sf::SoundBuffer& buffer, sf::Sound& sound) : buffer(buffer), sound(sound), monster(ref), defeated(defeated), BlockingActionItem() {
     // In a real game, increase xp by level and other factors
     // In ours, guess the level by the difference in max hp. 
-    this->xp = ref.xp + std::ceil((defeated.xp*1.5*(defeated.maxhp / ref.maxhp)));
+    this->xp = ref.xp + defeated.xp + std::ceil((defeated.xp*1.5*(defeated.maxhp / ref.maxhp)));
     playOnce = false;
   }
 
   ~GainXPAction() {
     monster.xp = this->xp;
   }
+
+  const int getXP() const { return this->xp; }
 
   virtual void update(double elapsed) {
     if (!playOnce) {
@@ -118,8 +120,14 @@ public:
       sound.play();
     }
 
-    if (monster.xp < this->xp) {
+    if (this->xp > 0) {
       monster.xp += 1;
+      this->xp--;
+
+      if (monster.xp == 100) {
+        monster.xp = 0;
+        monster.hp = monster.maxhp;
+      }
     }
     else {
       sound.stop(); // interupt

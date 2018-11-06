@@ -84,7 +84,7 @@ namespace pokemon {
   };
 
   const monster onyx = {
-   "onyx",
+   "onix",
    &tackle,
    &tailwhip,
    nullptr,
@@ -147,7 +147,7 @@ namespace pokemon {
   &roar,
   element::N_A,
   element::ELECTRIC,
-  80,
+  20,
   80,
   0,
   false
@@ -161,8 +161,36 @@ namespace pokemon {
   nullptr,
   element::N_A,
   element::FIRE,
+  20,
   120,
-  120,
+  0,
+  false
+  };
+
+  const monster piplup = {
+  "piplup",
+  &tackle,
+  nullptr,
+  nullptr,
+  nullptr,
+  element::N_A,
+  element::WATER,
+  30,
+  70,
+  0,
+  false
+  };
+
+  const monster roserade = {
+  "roserade",
+  &tackle,
+  nullptr,
+  nullptr,
+  nullptr,
+  element::N_A,
+  element::GRASS,
+  100,
+  100,
   0,
   false
   };

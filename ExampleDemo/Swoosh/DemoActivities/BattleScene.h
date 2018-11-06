@@ -159,7 +159,7 @@ private:
     FRONT
   };
 
-  std::vector<pokemon::monster> playerMonsters;
+  std::vector<pokemon::monster>& playerMonsters;
   pokemon::monster wild;
 
   class SignalRoundOver : public ActionItem {
@@ -233,9 +233,11 @@ private:
       scale = ease::linear(total, 0.5, 1.0);
       this->ref->playerSprite.setScale(scale, scale);
 
+      // linger and fade in from white
+      scale = ease::linear(total, 1.0, 1.0);
       shader.setUniform("opacity", 1.0f-(float)scale);
 
-      if (total > 0.5)
+      if (total > 1.0)
         markDone();
     }
 
@@ -269,7 +271,9 @@ private:
         this->ref->actions.add(new FaintAction(ref->wildSprite));
         this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->wild.name + " fainted!"));
         this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
-        this->ref->actions.add(new GainXPAction(ref->playerMonsters[0], ref->wild, ref->xpBuffer, ref->sound));
+        GainXPAction* xpAction = new GainXPAction(ref->playerMonsters[0], ref->wild, ref->xpBuffer, ref->sound);
+        this->ref->actions.add(xpAction);
+        this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->playerMonsters[0].name + " gained\n" + std::to_string(xpAction->getXP()) + " XP!"));
         this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
 
         leaveScene = true;
@@ -319,7 +323,7 @@ private:
 
 public:
 
-  BattleScene(ActivityController& controller) : Activity(controller) {
+  BattleScene(ActivityController& controller, std::vector<pokemon::monster>& monsters) : playerMonsters(monsters) , Activity(controller) {
     fadeMusic = preBattleSetup = canInteract = isKeyDown = doIntro = false;
 
     // Load sounds
@@ -342,14 +346,10 @@ public:
     statusShader.loadFromMemory(STATUS_BAR_SHADER, sf::Shader::Type::Fragment);
     statusShader.setUniform("texture", sf::Shader::CurrentTexture);
 
+    // Refactoring: have one "loadPokemonData" for both wild and owned pokemon
+    // Send pointers to the wild references and player references in the load function 
+    // Have an additional argument to flag the facing direction
     wild = makeWildPokemon();
-    //std::string name = std::string("Wild ") + std::string(wild.name);
-    //wild.name = name.data();
-
-    // Replace with reference from previous activity
-    playerMonsters.push_back(pokemon::monster(pokemon::pikachu));
-    playerMonsters.push_back(pokemon::monster(pokemon::charizard));
-
     loadPlayerPokemonData();
 
     // Load graphics
@@ -388,6 +388,18 @@ public:
       playerRoarBuffer.loadFromFile(CHARIZARD_PATH[2]);
       if (playerTexture) delete playerTexture;
       playerTexture = loadTexture(CHARIZARD_PATH[FACING::BACK]);
+    } else if (playerMonsters[0].name == "roserade") {
+      playerRoarBuffer.loadFromFile(ROSERADE_PATH[2]);
+      if (playerTexture) delete playerTexture;
+      playerTexture = loadTexture(ROSERADE_PATH[FACING::BACK]);
+    } else if (playerMonsters[0].name == "onix") {
+      playerRoarBuffer.loadFromFile(ONYX_PATH[2]);
+      if (playerTexture) delete playerTexture;
+      playerTexture = loadTexture(ONYX_PATH[FACING::BACK]);
+    } else if (playerMonsters[0].name == "piplup") {
+      playerRoarBuffer.loadFromFile(PIPLUP_PATH[2]);
+      if (playerTexture) delete playerTexture;
+      playerTexture = loadTexture(PIPLUP_PATH[FACING::BACK]);
     }
 
     playerSprite.setTexture(*playerTexture, true);
@@ -448,9 +460,16 @@ public:
       facing = FACING::FRONT;
     
     // Our attacks miss
+    // TODO: ActionItem interrupt for flying or missing
     if (second->isFlying) {
+      // If the attacking pokemon was also flying, come back down
+      if (first->isFlying) {
+        actions.add(new FlyAction(*firstSprite, *first, flyBuffer, sound));
+      }
+
       actions.add(new ChangeText(output, std::string(first->name) + " missed!"));
       actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+
       return;
     }
 
@@ -619,15 +638,15 @@ public:
       int randNegative = rand() % 2 == 0 ? -1 : 1;
       int randSpeedX = rand() % 220;
       randSpeedX *= randNegative;
-      int randSpeedY = rand() % 220;
+      int randSpeedY = rand() % 320;
 
       particle p;
       p.sprite = sf::Sprite(*particleTexture);
       p.pos = position;
       p.speed = sf::Vector2f(randSpeedX, -randSpeedY);
-      p.friction = sf::Vector2f(0.99999f, 0.9999f);
-      p.life = 1.5;
-      p.lifetime = 1.5;
+      p.friction = sf::Vector2f(0.96f, 0.96f);
+      p.life = 1;
+      p.lifetime = 1;
       p.sprite.setPosition(p.pos);
 
       particles.push_back(p);

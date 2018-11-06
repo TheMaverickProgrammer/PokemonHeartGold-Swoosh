@@ -46,6 +46,8 @@ private:
   Timer walkAnim;
   Direction playerDirection;
   bool inFocus;
+
+  std::vector<pokemon::monster> playerMonsters;
 public:
   DemoScene(ActivityController& controller) : Activity(controller) { 
     inFocus = false;
@@ -73,6 +75,13 @@ public:
     view = sf::View(sf::FloatRect(20.0f, 20.0f, 400.0f, 300.0f));
     view.setCenter(37 * 16, 45 * 16);
     playerDirection = Direction::DOWN;
+
+    playerMonsters.clear();
+    playerMonsters.push_back(pokemon::monster(pokemon::pikachu));
+    playerMonsters.push_back(pokemon::monster(pokemon::charizard));
+    playerMonsters.push_back(pokemon::monster(pokemon::piplup));
+    playerMonsters.push_back(pokemon::monster(pokemon::roserade));
+    playerMonsters.push_back(pokemon::monster(pokemon::onyx));
   }
 
   virtual void onStart() {
@@ -137,7 +146,7 @@ public:
         int random_battle = rand() % 100;
 
         if (random_battle == 99) {
-          getController().push<segue<Checkerboard>::to<BattleScene>>();
+          getController().push<segue<Checkerboard>::to<BattleScene>>(playerMonsters);
         }
       }
     }
