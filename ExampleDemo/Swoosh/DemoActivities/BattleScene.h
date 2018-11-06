@@ -76,6 +76,22 @@ auto STATUS_BAR_SHADER = GLSL
     gl_FragColor = gl_Color * pixel;
   }
 );
+
+auto WHITE_SHADER = GLSL
+(
+  110,
+  uniform sampler2D texture;
+  uniform float opacity;
+
+  void main()
+  {
+    vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
+    vec4 color = gl_Color * pixel;
+    color = vec4(1.0, 1.0, 1.0, color.a)*opacity + (1.0 - opacity)*color;
+    gl_FragColor = color;
+  }
+);
+
 class BattleScene : public Activity {
 private:
   sf::Texture *playerTexture;
@@ -86,6 +102,7 @@ private:
   sf::Texture *textboxTexture;
   sf::Texture *playerStatusTexture;
   sf::Texture *enemyStatusTexture;
+  sf::Texture *particleTexture;
 
   sf::Sprite wildSprite;
   sf::Sprite playerSprite;
@@ -134,6 +151,8 @@ private:
 
   int rowSelect;
   int colSelect;
+
+  std::vector<particle> particles;
 
   enum FACING : int {
     BACK,
@@ -192,10 +211,13 @@ private:
     bool isLoaded;
     double scale;
     double total;
+    sf::Shader shader;
   public:
     SpawnNewPokemon(BattleScene* ref) : ref(ref), BlockingActionItem() {
       isLoaded = false;
       scale = total = 0;
+      shader.loadFromMemory(WHITE_SHADER, sf::Shader::Fragment);
+      shader.setUniform("texture", sf::Shader::CurrentTexture);
     }
 
     virtual void update(double elapsed) {
@@ -205,16 +227,24 @@ private:
         this->ref->playerMonsters.erase(this->ref->playerMonsters.begin());
         this->ref->loadPlayerPokemonData();
         isLoaded = true;
+        ref->spawnParticles(this->ref->playerSprite.getPosition());
       }
 
       scale = ease::linear(total, 0.5, 1.0);
       this->ref->playerSprite.setScale(scale, scale);
 
+      shader.setUniform("opacity", 1.0f-(float)scale);
+
       if (total > 0.5)
         markDone();
     }
 
-    virtual void draw(sf::RenderTexture& surface) { ; }
+    virtual void draw(sf::RenderTexture& surface) { 
+      sf::RenderStates states;
+      states.shader = &shader;
+
+      surface.draw(this->ref->playerSprite, states);
+    }
   };
 
   // This is an interrupting action that clears the list, making room to add a new set of action items
@@ -237,9 +267,11 @@ private:
         this->ref->actions.add(new IdleAction(ref->playerSprite));
         this->ref->actions.add(new RoarAction(ref->wildSprite, ref->wildRoarBuffer, ref->sound, false));
         this->ref->actions.add(new FaintAction(ref->wildSprite));
-        this->ref->actions.add(new GainXPAction(ref->playerMonsters[0], ref->wild, ref->xpBuffer, ref->sound));
         this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->wild.name + " fainted!"));
         this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
+        this->ref->actions.add(new GainXPAction(ref->playerMonsters[0], ref->wild, ref->xpBuffer, ref->sound));
+        this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
+
         leaveScene = true;
       }
       
@@ -266,8 +298,9 @@ private:
         else {
           this->ref->actions.add(new ChangeText(ref->output, std::string() + "Go " + ref->playerMonsters[1].name + "!"));
           this->ref->actions.add(new SpawnNewPokemon(this->ref));
-          this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
           this->ref->actions.add(new RoarAction(ref->playerSprite, ref->playerRoarBuffer, ref->sound));
+          this->ref->actions.add(new IdleAction(ref->playerSprite));
+          this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
           this->ref->actions.add(new SignalRoundOver(this->ref));
 
         }
@@ -326,6 +359,7 @@ public:
     textboxTexture = loadTexture(TEXTBOX_PATH);
     playerStatusTexture = loadTexture(PLAYER_STATUS_PATH);
     enemyStatusTexture = loadTexture(ENEMY_STATUS_PATH);
+    particleTexture = loadTexture(PARTICLE_PATH);
 
     battleAreaSprite = sf::Sprite(*battleAreaTexture);
     battlePadBGSprite = sf::Sprite(*battlePadBGTexture);
@@ -357,7 +391,7 @@ public:
     }
 
     playerSprite.setTexture(*playerTexture, true);
-    setOrigin(playerSprite, 0, 1.0);
+    setOrigin(playerSprite, 0.5, 1.0);
   }
 
   void generateBattleActions(const pokemon::moves& playerchoice) {
@@ -413,6 +447,13 @@ public:
     if (first == &wild)
       facing = FACING::FRONT;
     
+    // Our attacks miss
+    if (second->isFlying) {
+      actions.add(new ChangeText(output, std::string(first->name) + " missed!"));
+      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+      return;
+    }
+
     if (first->isFlying) {
       actions.add(new ChangeText(output, std::string(first->name) + " is flying!"));
       actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
@@ -490,14 +531,14 @@ public:
       wildTexture = loadTexture(PIDGEY_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(PIDGEY_PATH[2]);
-      wild.xp = 5; // worth 5 xp
+      wild.xp = 25; // worth 25 xp
       break;
     case 1:
       wild = pokemon::monster(pokemon::clefairy);
       wildTexture = loadTexture(CLEFAIRY_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(CLEFAIRY_PATH[2]);
-      wild.xp = 10; // worth 10 xp
+      wild.xp = 50; // worth 50 xp
 
       break;
     case 2:
@@ -505,7 +546,7 @@ public:
       wildTexture = loadTexture(GEODUDE_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(GEODUDE_PATH[2]);
-      wild.xp = 13; // worth 13 xp
+      wild.xp = 33; // worth 33 xp
 
       break;
     case 3:
@@ -513,7 +554,7 @@ public:
       wildTexture = loadTexture(PONYTA_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(PONYTA_PATH[2]);
-      wild.xp = 11; // worth 11 xp
+      wild.xp = 21; // worth 21 xp
 
       break;
     case 4:
@@ -529,7 +570,7 @@ public:
       wildTexture = loadTexture(ODISH_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(ODISH_PATH[2]);
-      wild.xp = 5; // worth 5 xp
+      wild.xp = 15; // worth 15 xp
 
       break;
     case 6:
@@ -553,7 +594,50 @@ public:
     waitTimer.start();
   }
 
+  void updateParticles(double elapsed) {
+    int i = 0;
+    for (auto& p : particles) {
+      p.speed = sf::Vector2f(p.speed.x * p.friction.x, p.speed.y * p.friction.y);
+      p.pos += sf::Vector2f(p.speed.x * elapsed, p.speed.y * elapsed);
+
+      p.sprite.setPosition(p.pos);
+      p.sprite.setScale(2.0*(p.life / p.lifetime), 2.0*(p.life / p.lifetime));
+      p.sprite.setColor(sf::Color(p.sprite.getColor().r, p.sprite.getColor().g, p.sprite.getColor().b, 255 * p.life / p.lifetime));
+      p.life -= elapsed;
+
+      if (p.life <= 0) {
+        particles.erase(particles.begin() + i);
+        continue;
+      }
+
+      i++;
+    }
+  }
+
+  void spawnParticles(sf::Vector2f position) {
+    for (int i = 100; i > 0; i--) {
+      int randNegative = rand() % 2 == 0 ? -1 : 1;
+      int randSpeedX = rand() % 220;
+      randSpeedX *= randNegative;
+      int randSpeedY = rand() % 220;
+
+      particle p;
+      p.sprite = sf::Sprite(*particleTexture);
+      p.pos = position;
+      p.speed = sf::Vector2f(randSpeedX, -randSpeedY);
+      p.friction = sf::Vector2f(0.99999f, 0.9999f);
+      p.life = 1.5;
+      p.lifetime = 1.5;
+      p.sprite.setPosition(p.pos);
+
+      particles.push_back(p);
+    }
+  }
+
+
   virtual void onUpdate(double elapsed) {
+    updateParticles(elapsed);
+
     if (fadeMusic) {
       battleMusic.setVolume(battleMusic.getVolume() * 0.90); // quieter
     }
@@ -706,6 +790,11 @@ public:
       surface.draw(battlePadBGSprite);
       surface.draw(battlePadFGSprite);
       actions.draw(surface);
+
+      for (auto& p : particles) {
+        surface.draw(p.sprite);
+      }
+
       surface.draw(textboxSprite);
 
       menuText.setFillColor(sf::Color::Black);
@@ -818,5 +907,6 @@ public:
     delete battlePadFGTexture;
     delete battlePadBGTexture;
     delete textboxTexture;
+    delete particleTexture;
   }
 };

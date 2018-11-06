@@ -36,6 +36,7 @@ constexpr auto GRASS_PAD_FG = "resources/battle/grass_battle_fg.png";
 
 constexpr auto DEFENSE_DOWN_PATH = "resources/battle/effects/ddown.png";
 constexpr auto ATTACK_UP_PATH    = "resources/battle/effects/aup.png";
+constexpr auto PARTICLE_PATH = "resources/battle/effects/pokeball.png";
 
 constexpr auto TEXTBOX_PATH = "resources/textbox.png";
 constexpr auto GAME_FONT = "resources/pokemon.ttf";
