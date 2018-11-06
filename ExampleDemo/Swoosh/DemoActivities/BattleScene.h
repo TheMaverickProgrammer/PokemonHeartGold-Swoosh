@@ -118,6 +118,7 @@ private:
 
   sf::Font   menuFont;
   sf::Text   menuText;
+  sf::Text   statusText;
 
   sf::Music battleMusic;
 
@@ -375,7 +376,13 @@ public:
     menuFont.loadFromFile(GAME_FONT);
     menuText.setFont(menuFont);
     menuText.setScale(0.45, 0.45);
+    menuText.setFillColor(sf::Color::Black);
 
+    statusText.setFont(menuFont);
+    statusText.setScale(0.2, 0.2);
+    statusText.setFillColor(sf::Color::Black);
+
+    // menu items
     colSelect = rowSelect = 0;
   }
 
@@ -550,14 +557,16 @@ public:
       wildTexture = loadTexture(PIDGEY_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(PIDGEY_PATH[2]);
-      wild.xp = 25; // worth 25 xp
+      wild.level = 5 + rand() % 8;
+      wild.xp = 25 * wild.level/2.0; // base worth 25 xp
       break;
     case 1:
       wild = pokemon::monster(pokemon::clefairy);
       wildTexture = loadTexture(CLEFAIRY_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(CLEFAIRY_PATH[2]);
-      wild.xp = 50; // worth 50 xp
+      wild.level = 5 + rand() % 4;
+      wild.xp = 50 * wild.level / 2.0; // base worth 50 xp
 
       break;
     case 2:
@@ -565,7 +574,8 @@ public:
       wildTexture = loadTexture(GEODUDE_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(GEODUDE_PATH[2]);
-      wild.xp = 33; // worth 33 xp
+      wild.level = 5 + rand() % 4;
+      wild.xp = 33 * wild.level / 2.0; // base worth 33 xp
 
       break;
     case 3:
@@ -573,7 +583,8 @@ public:
       wildTexture = loadTexture(PONYTA_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(PONYTA_PATH[2]);
-      wild.xp = 21; // worth 21 xp
+      wild.level = 5 + rand() % 4;
+      wild.xp = 21 * wild.level / 2.0; // base worth 21 xp
 
       break;
     case 4:
@@ -581,7 +592,8 @@ public:
       wildTexture = loadTexture(CUBONE_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(CUBONE_PATH[2]);
-      wild.xp = 20; // worth 20 xp
+      wild.level = 5 + rand() % 4;
+      wild.xp = 20 * wild.level / 2.0; // base worth 20 xp
 
       break;
     case 5:
@@ -589,7 +601,8 @@ public:
       wildTexture = loadTexture(ODISH_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(ODISH_PATH[2]);
-      wild.xp = 15; // worth 15 xp
+      wild.level = 5 + rand() % 1;
+      wild.xp = 15 * wild.level / 2.0; // base worth 15 xp
 
       break;
     case 6:
@@ -597,7 +610,8 @@ public:
       wildTexture = loadTexture(PIKACHU_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(PIKACHU_PATH[2]);
-      wild.xp = 12; // worth 12 xp
+      wild.level = 5 + rand() % 8;
+      wild.xp = 12 * wild.level / 2.0; // base worth 12 xp
 
       break;
     }
@@ -816,8 +830,6 @@ public:
 
       surface.draw(textboxSprite);
 
-      menuText.setFillColor(sf::Color::Black);
-
       // Position the ui
       setOrigin(playerStatusSprite, 1.0, 1.0); // bottom-right corner
       playerStatusSprite.setPosition(getView().getSize().x, textboxSprite.getPosition().y-textboxSprite.getGlobalBounds().height);
@@ -831,9 +843,21 @@ public:
       statusShader.setUniform("hp", hp);
       statusShader.setUniform("xp", (float)playerMonsters[0].xp / 100.0f);
       surface.draw(playerStatusSprite, states);
+      statusText.setString(std::to_string(std::max(0, playerMonsters[0].hp)));
+      statusText.setPosition(playerStatusSprite.getPosition().x - 58, playerStatusSprite.getPosition().y - 15);
+      surface.draw(statusText);
+      statusText.setString(std::to_string(playerMonsters[0].maxhp));
+      statusText.setPosition(playerStatusSprite.getPosition().x - 33, playerStatusSprite.getPosition().y - 15);
+      surface.draw(statusText);
+      statusText.setString(std::to_string(playerMonsters[0].level));
+      statusText.setPosition(playerStatusSprite.getPosition().x - 21, playerStatusSprite.getPosition().y - 35);
+      surface.draw(statusText);
 
       statusShader.setUniform("hp", (float)wild.hp / (float)wild.maxhp);
       surface.draw(enemyStatusSprite, states);
+      statusText.setString(std::to_string(wild.level)); // every wild pokemon is level 5 for demo
+      statusText.setPosition(enemyStatusSprite.getPosition().x + 85, enemyStatusSprite.getPosition().y + 11);
+      surface.draw(statusText);
 
       // Draw a menu of the current pokemon's abilities
       if (canInteract) {

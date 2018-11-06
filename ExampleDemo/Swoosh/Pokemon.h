@@ -27,6 +27,7 @@ namespace pokemon {
     const moves* move4;
     element type1;
     element type2;
+    int level;
     int hp;
     int maxhp;
     int xp;
@@ -49,6 +50,7 @@ namespace pokemon {
     nullptr,
     element::N_A,
     element::NORMAL,
+    5,
     100,
     100,
     0,
@@ -63,6 +65,7 @@ namespace pokemon {
    nullptr,
    element::N_A,
    element::GROUND,
+   5,
    200,
    200,
    0,
@@ -77,6 +80,7 @@ namespace pokemon {
    nullptr,
    element::N_A,
    element::FIRE,
+   5,
    150,
    150,
    0,
@@ -91,6 +95,7 @@ namespace pokemon {
    nullptr,
    element::N_A,
    element::GROUND,
+   5,
    200,
    200,
    0,
@@ -105,6 +110,7 @@ namespace pokemon {
    nullptr,
    element::N_A,
    element::GRASS,
+   5,
    80,
    80,
    0,
@@ -119,6 +125,7 @@ namespace pokemon {
    nullptr,
    element::N_A,
    element::NORMAL,
+   5,
    110,
    110,
    0,
@@ -133,6 +140,7 @@ namespace pokemon {
    nullptr,
    element::N_A,
    element::GROUND,
+   5,
    100,
    100,
    0,
@@ -147,6 +155,7 @@ namespace pokemon {
   &roar,
   element::N_A,
   element::ELECTRIC,
+  5,
   20,
   80,
   0,
@@ -161,6 +170,7 @@ namespace pokemon {
   nullptr,
   element::N_A,
   element::FIRE,
+  5,
   20,
   120,
   0,
@@ -175,6 +185,7 @@ namespace pokemon {
   nullptr,
   element::N_A,
   element::WATER,
+  5,
   30,
   70,
   0,
@@ -189,6 +200,7 @@ namespace pokemon {
   nullptr,
   element::N_A,
   element::GRASS,
+  5,
   100,
   100,
   0,
