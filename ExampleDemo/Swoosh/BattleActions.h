@@ -80,6 +80,37 @@ public:
   }
 };
 
+class GainXPAction : public BlockingActionItem {
+private:
+  pokemon::monster& monster;
+  pokemon::monster& defeated;
+  int xp;
+public:
+
+  GainXPAction(pokemon::monster& ref, pokemon::monster& defeated) : monster(ref), defeated(defeated), BlockingActionItem() {
+    // In a real game, increase xp by level and other factors
+    // In ours, guess the level by the difference in max hp. 
+    this->xp = ref.xp + std::ceil((defeated.xp*1.5*(defeated.maxhp / ref.maxhp)));
+  }
+
+  ~GainXPAction() {
+    monster.xp = this->xp;
+
+  }
+
+  virtual void update(double elapsed) {
+    if (monster.xp < this->xp) {
+      monster.xp += 1;
+    }
+    else {
+      markDone();
+    }
+  }
+
+  virtual void draw(sf::RenderTexture& surface) {
+  }
+};
+
 class FaintAction : public BlockingActionItem {
 private:
   sf::Sprite& ref;

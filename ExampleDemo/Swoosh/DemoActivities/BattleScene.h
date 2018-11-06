@@ -37,6 +37,45 @@ auto MONOTONE_SHADER = GLSL
   }
 );
 
+auto STATUS_BAR_SHADER = GLSL
+(
+  110,
+  uniform sampler2D texture;
+  uniform float hp;
+  uniform float xp;
+
+  void main()
+  {
+    vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
+
+    // hp is the red color coded pixels in the sample
+    if (pixel.g == 0.0 && pixel.b == 0.0) {
+      float normal = (hp*137.0) + (1.0 - hp)*255.0;
+      normal = normal / 255.0;
+
+      if (pixel.r > normal) {
+        pixel = vec4(0.0, 1.0, 0.0, 1.0);
+      }
+      else {
+        pixel = vec4(0.5, 0.5, 0.5, 1.0);
+      }
+    }  else if (pixel.r == 0.0 && pixel.g == 0.0) {
+      // xp is the blue color coded pixels in the sample
+
+      float normal = (xp*12.0) + (1.0 - xp)*255.0;
+      normal = normal / 255.0;
+
+      if (pixel.b > normal) {
+        pixel = vec4(0.04, 1.0, 0.95, 1.0);
+      }
+      else {
+        pixel = vec4(0.5, 0.5, 0.5, 1.0);
+      }
+    }
+
+    gl_FragColor = gl_Color * pixel;
+  }
+);
 class BattleScene : public Activity {
 private:
   sf::Texture *playerTexture;
@@ -45,6 +84,8 @@ private:
   sf::Texture *battlePadFGTexture;
   sf::Texture *battlePadBGTexture;
   sf::Texture *textboxTexture;
+  sf::Texture *playerStatusTexture;
+  sf::Texture *enemyStatusTexture;
 
   sf::Sprite wildSprite;
   sf::Sprite playerSprite;
@@ -52,8 +93,11 @@ private:
   sf::Sprite battlePadFGSprite;
   sf::Sprite battlePadBGSprite;
   sf::Sprite textboxSprite;
+  sf::Sprite playerStatusSprite;
+  sf::Sprite enemyStatusSprite;
 
   sf::Shader shader;
+  sf::Shader statusShader;
 
   sf::Font   menuFont;
   sf::Text   menuText;
@@ -118,7 +162,16 @@ private:
 
     virtual void update(double elapsed) {
       using intent::segue;
-      this->ref->getController().queuePop<segue<BlackWashFade>>();
+
+      // we whited out
+      if (this->ref->playerMonsters[0].hp <= 0) {
+        this->ref->getController().queuePop<segue<WhiteWashFade>>();
+      }
+      else {
+        // we won or ran away
+        this->ref->getController().queuePop<segue<BlackWashFade>>();
+      }
+
       markDone();
     }
 
@@ -176,6 +229,7 @@ private:
         this->ref->actions.add(new IdleAction(ref->playerSprite));
         this->ref->actions.add(new RoarAction(ref->wildSprite, ref->wildRoarBuffer, ref->sound, false));
         this->ref->actions.add(new FaintAction(ref->wildSprite));
+        this->ref->actions.add(new GainXPAction(ref->playerMonsters[0], ref->wild));
         this->ref->actions.add(new WaitForButtonPressAction(this->ref->output, std::string() + ref->wild.name + " fainted!", sf::Keyboard::Key::Enter));
         leaveScene = true;
       }
@@ -231,6 +285,9 @@ public:
     shader.loadFromMemory(MONOTONE_SHADER, sf::Shader::Type::Fragment);
     shader.setUniform("texture", sf::Shader::CurrentTexture);
 
+    statusShader.loadFromMemory(STATUS_BAR_SHADER, sf::Shader::Type::Fragment);
+    statusShader.setUniform("texture", sf::Shader::CurrentTexture);
+
     wild = makeWildPokemon();
     //std::string name = std::string("Wild ") + std::string(wild.name);
     //wild.name = name.data();
@@ -246,11 +303,15 @@ public:
     battlePadFGTexture = loadTexture(GRASS_PAD_FG);
     battlePadBGTexture = loadTexture(GRASS_PAD_BG);
     textboxTexture = loadTexture(TEXTBOX_PATH);
+    playerStatusTexture = loadTexture(PLAYER_STATUS_PATH);
+    enemyStatusTexture = loadTexture(ENEMY_STATUS_PATH);
 
     battleAreaSprite = sf::Sprite(*battleAreaTexture);
     battlePadBGSprite = sf::Sprite(*battlePadBGTexture);
     battlePadFGSprite = sf::Sprite(*battlePadFGTexture);
     textboxSprite = sf::Sprite(*textboxTexture);
+    playerStatusSprite = sf::Sprite(*playerStatusTexture);
+    enemyStatusSprite = sf::Sprite(*enemyStatusTexture);
 
     setOrigin(textboxSprite, 0.0, 1.0);
     textboxSprite.setScale(1.59f, 1.75f);
@@ -380,42 +441,55 @@ public:
       wildTexture = loadTexture(PIDGEY_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(PIDGEY_PATH[2]);
+      wild.xp = 5; // worth 5 xp
       break;
     case 1:
       wild = pokemon::monster(pokemon::clefairy);
       wildTexture = loadTexture(CLEFAIRY_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(CLEFAIRY_PATH[2]);
+      wild.xp = 10; // worth 10 xp
+
       break;
     case 2:
       wild = pokemon::monster(pokemon::geodude);
       wildTexture = loadTexture(GEODUDE_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(GEODUDE_PATH[2]);
+      wild.xp = 13; // worth 13 xp
+
       break;
     case 3:
       wild = pokemon::monster(pokemon::ponyta);
       wildTexture = loadTexture(PONYTA_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(PONYTA_PATH[2]);
+      wild.xp = 11; // worth 11 xp
+
       break;
     case 4:
       wild = pokemon::monster(pokemon::cubone);
       wildTexture = loadTexture(CUBONE_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(CUBONE_PATH[2]);
+      wild.xp = 20; // worth 20 xp
+
       break;
     case 5:
       wild = pokemon::monster(pokemon::oddish);
       wildTexture = loadTexture(ODISH_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(ODISH_PATH[2]);
+      wild.xp = 5; // worth 5 xp
+
       break;
     case 6:
       wild = pokemon::monster(pokemon::pikachu);
       wildTexture = loadTexture(PIKACHU_PATH[FACING::FRONT]);
       wildSprite = sf::Sprite(*wildTexture);
       wildRoarBuffer.loadFromFile(PIKACHU_PATH[2]);
+      wild.xp = 12; // worth 12 xp
+
       break;
     }
     
@@ -573,6 +647,24 @@ public:
 
       menuText.setFillColor(sf::Color::Black);
 
+      // Position the ui
+      setOrigin(playerStatusSprite, 1.0, 1.0); // bottom-right corner
+      playerStatusSprite.setPosition(getView().getSize().x, textboxSprite.getPosition().y-textboxSprite.getGlobalBounds().height);
+      setOrigin(enemyStatusSprite, 0.0, 0.0); // top-left corner
+      enemyStatusSprite.setPosition(0, 0);
+
+      // draw the ui
+      states.shader = &statusShader;
+
+      float hp = (float)playerMonsters[0].hp / (float)playerMonsters[0].maxhp;
+      statusShader.setUniform("hp", hp);
+      statusShader.setUniform("xp", (float)playerMonsters[0].xp / 100.0f);
+      surface.draw(playerStatusSprite, states);
+
+      statusShader.setUniform("hp", (float)wild.hp / (float)wild.maxhp);
+      surface.draw(enemyStatusSprite, states);
+
+      // Draw a menu of the current pokemon's abilities
       if (canInteract) {
         menuText.setString("°");
 

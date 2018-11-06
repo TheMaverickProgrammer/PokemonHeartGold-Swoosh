@@ -154,16 +154,16 @@ namespace pokemon {
   };
 
   const monster charizard = {
-    "charizard",
-    &tackle,
-    &fly,
-    nullptr,
-    nullptr,
-    element::N_A,
-    element::FIRE,
-    120,
-    120,
-    0,
-    false
+  "charizard",
+  &tackle,
+  &fly,
+  nullptr,
+  nullptr,
+  element::N_A,
+  element::FIRE,
+  120,
+  120,
+  0,
+  false
   };
 }

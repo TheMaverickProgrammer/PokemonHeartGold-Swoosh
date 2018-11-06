@@ -31,3 +31,5 @@ constexpr auto ATTACK_UP_PATH    = "resources/battle/effects/aup.png";
 
 constexpr auto TEXTBOX_PATH = "resources/textbox.png";
 constexpr auto GAME_FONT = "resources/pokemon.ttf";
+constexpr auto ENEMY_STATUS_PATH  = "resources/battle/enemy_status.png";
+constexpr auto PLAYER_STATUS_PATH = "resources/battle/player_status.png";
