@@ -26,58 +26,67 @@ class BobAction : public ActionItem {
 private:
   sf::Sprite& ref;
   double total;
-  sf::Vector2f original;
+  sf::Vector2f bob;
 public:
   BobAction(sf::Sprite& ref) : ref(ref) {
     total = 0;
-    original = ref.getPosition();
   }
 
   ~BobAction() {
-    ref.setPosition(original);
   }
 
   virtual void update(double elapsed) {
     total += elapsed;
 
-    int bobx = std::sin(total  * 2) * 4;
-    int boby = std::abs(std::sin(total * 2)) * 5;
-    ref.setPosition(original.x + bobx, original.y + boby);
+    bob.x = std::sin(total  * 2) * 4;
+    bob.y = std::abs(std::sin(total * 2)) * 5;
   }
 
   virtual void draw(sf::RenderTexture& surface) {
+    auto original = ref.getPosition();
+    ref.setPosition(original.x + bob.x, original.y + bob.y);
     surface.draw(ref);
+    ref.setPosition(original);
   }
 };
 
-class TakeDamage : public ActionItem {
+class TakeDamage : public BlockingActionItem {
 private:
   pokemon::monster& monster;
   int damage;
+  int health;
 public:
-  TakeDamage(pokemon::monster& ref, int damage) : monster(ref) {
+
+  TakeDamage(pokemon::monster& ref, int damage) : monster(ref), BlockingActionItem() {
     this->damage = damage;
+    this->health = ref.hp;
   }
 
   ~TakeDamage() {
+    monster.hp = health - damage;
+
   }
 
   virtual void update(double elapsed) {
-    monster.hp -= damage;
-    markDone();
+    if (monster.hp > health - damage) {
+      monster.hp -= 1;
+    }
+    else {
+      markDone();
+    }
   }
 
   virtual void draw(sf::RenderTexture& surface) {
   }
 };
 
-class FaintAction : public ActionItem {
+class FaintAction : public BlockingActionItem {
 private:
   sf::Sprite& ref;
   double total;
   sf::IntRect original;
 public:
-  FaintAction(sf::Sprite& ref) : ref(ref) {
+  FaintAction(sf::Sprite& ref) : ref(ref), BlockingActionItem() {
     total = 0;
     original = ref.getTextureRect();
   }
@@ -90,7 +99,10 @@ public:
     double alpha = 1.0 - ease::linear(total, 0.5, 1.0);
 
     ref.setTextureRect(sf::IntRect(0, 0, original.width, original.height*alpha));
-    game::setOrigin(ref, 0.5f, 1.0f); // update origin pos
+    game::setOrigin(ref, ref.getOrigin().x/ref.getTexture()->getSize().x, 1.0f); // update origin pos
+
+    if (total >= 0.5)
+      markDone();
   }
 
   virtual void draw(sf::RenderTexture& surface) {
@@ -204,16 +216,25 @@ private:
   std::string& output;
   std::string input;
   bool isPressed;
+  bool wasHeldBefore;
 public:
   WaitForButtonPressAction(std::string& output, std::string input, sf::Keyboard::Key button) : output(output), button(button) {
     this->input = input;
     isPressed = false;
+    wasHeldBefore = sf::Keyboard::isKeyPressed(button);
   }
 
   virtual void update(double elapsed) {
     output = input;
-    if (!sf::Keyboard::isKeyPressed(button) && isPressed)
-      markDone();
+    if (!sf::Keyboard::isKeyPressed(button) && isPressed) {
+      if (wasHeldBefore) {
+        wasHeldBefore = false;
+        isPressed = false;
+      }
+      else {
+        markDone();
+      }
+    }
     else if (sf::Keyboard::isKeyPressed(button) && !isPressed)
       isPressed = true;
   }

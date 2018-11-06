@@ -75,6 +75,8 @@ private:
   Timer waitTimer;
   
   bool canInteract;
+  bool isKeyDown;
+
   ActionList actions;
   std::string output;
 
@@ -106,10 +108,118 @@ private:
     virtual void draw(sf::RenderTexture& surface) { ; }
   };
 
+  class LeaveBattleScene : public BlockingActionItem {
+  private:
+    BattleScene* ref;
+  public:
+    LeaveBattleScene(BattleScene* ref) : BlockingActionItem() {
+      this->ref = ref;
+    }
+
+    virtual void update(double elapsed) {
+      using intent::segue;
+      this->ref->getController().queuePop<segue<BlackWashFade>>();
+      markDone();
+    }
+
+    virtual void draw(sf::RenderTexture& surface) { ; }
+  };
+
+  class SpawnNewPokemon : public BlockingActionItem {
+  private:
+    BattleScene* ref;
+    bool isLoaded;
+    double scale;
+    double total;
+  public:
+    SpawnNewPokemon(BattleScene* ref) : ref(ref), BlockingActionItem() {
+      isLoaded = false;
+      scale = total = 0;
+    }
+
+    virtual void update(double elapsed) {
+      total += elapsed;
+
+      if (!isLoaded) {
+        this->ref->playerMonsters.erase(this->ref->playerMonsters.begin());
+        this->ref->loadPlayerPokemonData();
+        isLoaded = true;
+      }
+
+      scale = ease::linear(total, 0.5, 1.0);
+      this->ref->playerSprite.setScale(scale, scale);
+
+      if (total > 0.5)
+        markDone();
+    }
+
+    virtual void draw(sf::RenderTexture& surface) { ; }
+  };
+
+  // This is an interrupting action that clears the list, making room to add a new set of action items
+  // And prevents us from returning to the main battle loop
+  class SignalCheckHP : public ClearAllActions {
+  private: 
+    BattleScene* ref;
+  public:
+    SignalCheckHP(BattleScene* ref) : ClearAllActions() { this->ref = ref; }
+
+    virtual void update(double elapsed) {
+      bool leaveScene = false;
+      bool clearedList = false;
+
+      // Add new events
+      if (ref->wild.hp <= 0) {
+        ClearAllActions::update(elapsed);
+        clearedList = true;
+
+        this->ref->actions.add(new IdleAction(ref->playerSprite));
+        this->ref->actions.add(new RoarAction(ref->wildSprite, ref->wildRoarBuffer, ref->sound, false));
+        this->ref->actions.add(new FaintAction(ref->wildSprite));
+        this->ref->actions.add(new WaitForButtonPressAction(this->ref->output, std::string() + ref->wild.name + " fainted!", sf::Keyboard::Key::Enter));
+        leaveScene = true;
+      }
+      
+      if (ref->playerMonsters[0].hp <= 0) {
+        if (!clearedList) {
+          // Prevent from clearing the recent additions...
+          ClearAllActions::update(elapsed);
+        }
+
+        this->ref->actions.add(new IdleAction(ref->wildSprite));
+        this->ref->actions.add(new RoarAction(ref->playerSprite, ref->playerRoarBuffer, ref->sound, false));
+        this->ref->actions.add(new FaintAction(ref->playerSprite));
+        this->ref->actions.add(new WaitForButtonPressAction(this->ref->output, std::string() + ref->playerMonsters[0].name + " fainted!", sf::Keyboard::Key::Enter));
+        
+        if (ref->playerMonsters.size() - 1 == 0) {
+          // we're out of pokemon
+          this->ref->actions.add(new WaitForButtonPressAction(this->ref->output, std::string() + "Trainer whited out!", sf::Keyboard::Key::Enter));
+          leaveScene = true;
+        }
+        else {
+          this->ref->actions.add(new WaitForButtonPressAction(this->ref->output, std::string() + "Go " + ref->playerMonsters[1].name + "!", sf::Keyboard::Key::Enter));
+          this->ref->actions.add(new SpawnNewPokemon(this->ref));
+          this->ref->actions.add(new RoarAction(ref->playerSprite, ref->playerRoarBuffer, ref->sound));
+          this->ref->actions.add(new SignalRoundOver(this->ref));
+
+        }
+
+      }
+
+      if (leaveScene) {
+        this->ref->actions.add(new LeaveBattleScene(ref));
+      }
+
+      markDone();
+    }
+
+    virtual void draw(sf::RenderTexture& surface) { ; }
+  };
+
 public:
 
   BattleScene(ActivityController& controller) : Activity(controller) {
-    fadeMusic = preBattleSetup = canInteract = doIntro = false;
+    fadeMusic = preBattleSetup = canInteract = isKeyDown = doIntro = false;
 
     // Load sounds
     battleMusic.openFromFile(BATTLE_MUSIC_PATH);
@@ -127,16 +237,16 @@ public:
 
     // Replace with reference from previous activity
     playerMonsters.push_back(pokemon::monster(pokemon::pikachu));
-    playerRoarBuffer.loadFromFile(PIKACHU_PATH[2]);
+    playerMonsters.push_back(pokemon::monster(pokemon::charizard));
+
+    loadPlayerPokemonData();
 
     // Load graphics
-    playerTexture = loadTexture(PIKACHU_PATH[FACING::BACK]);
     battleAreaTexture = loadTexture(GRASS_AREA);
     battlePadFGTexture = loadTexture(GRASS_PAD_FG);
     battlePadBGTexture = loadTexture(GRASS_PAD_BG);
     textboxTexture = loadTexture(TEXTBOX_PATH);
 
-    playerSprite = sf::Sprite(*playerTexture);
     battleAreaSprite = sf::Sprite(*battleAreaTexture);
     battlePadBGSprite = sf::Sprite(*battlePadBGTexture);
     battlePadFGSprite = sf::Sprite(*battlePadFGTexture);
@@ -151,6 +261,21 @@ public:
     menuText.setScale(0.5, 0.5);
 
     colSelect = rowSelect = 0;
+  }
+
+  void loadPlayerPokemonData() {
+    if (playerMonsters[0].name == "pikachu") {
+      playerRoarBuffer.loadFromFile(PIKACHU_PATH[2]);
+      if (playerTexture) delete playerTexture;
+      playerTexture = loadTexture(PIKACHU_PATH[FACING::BACK]);
+    } else if (playerMonsters[0].name == "charizard") {
+      playerRoarBuffer.loadFromFile(CHARIZARD_PATH[2]);
+      if (playerTexture) delete playerTexture;
+      playerTexture = loadTexture(CHARIZARD_PATH[FACING::BACK]);
+    }
+
+    playerSprite.setTexture(*playerTexture, true);
+    setOrigin(playerSprite, 0, 1.0);
   }
 
   void generateBattleActions(const pokemon::moves& playerchoice) {
@@ -210,36 +335,44 @@ public:
       actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " used tackle!", sf::Keyboard::Enter));
       actions.add(new TackleAction(*firstSprite, facing));
       actions.add(new TakeDamage(*second, firstchoice->damage));
+      actions.add(new SignalCheckHP(this));
     }
     else if (firstchoice->name == "tail whip") {
       actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " used tail whip!", sf::Keyboard::Enter));
       actions.add(new TailWhipAction(*firstSprite));
       actions.add(new DefenseDownAction(*secondSprite, statsFallBuffer, sound));
       actions.add(new WaitForButtonPressAction(output, std::string(second->name) + "'s defense\nfell sharply!", sf::Keyboard::Enter));
-
+      actions.add(new SignalCheckHP(this));
     }
     else if (firstchoice->name == "roar") {
       actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " used roar!", sf::Keyboard::Enter));
       actions.add(new RoarAction(*firstSprite, *firstRoarBuffer, sound));
       actions.add(new AttackUpAction(*firstSprite, statsRiseBuffer, sound));
-      actions.add(new WaitForButtonPressAction(output, std::string(second->name) + "'s attack\nrose!", sf::Keyboard::Enter));
+      actions.add(new WaitForButtonPressAction(output, std::string(first->name) + "'s attack\nrose!", sf::Keyboard::Enter));
+      actions.add(new SignalCheckHP(this));
     }
     else if (firstchoice->name == "thunder") {
       actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " used thunder!", sf::Keyboard::Enter));
+      actions.add(new TakeDamage(*second, firstchoice->damage));
+      actions.add(new SignalCheckHP(this));
     }
     else if (firstchoice->name == "fly") {
       actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " used fly!", sf::Keyboard::Enter));
-      actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " flew up into the sky!", sf::Keyboard::Enter));
+      actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " flew\nup into the sky!", sf::Keyboard::Enter));
+      actions.add(new SignalCheckHP(this));
     }
     else if (firstchoice->name == "nomove") {
       actions.add(new WaitForButtonPressAction(output, std::string(first->name) + " is struggling!", sf::Keyboard::Enter));
+      actions.add(new TakeDamage(*second, firstchoice->damage));
+      actions.add(new TakeDamage(*first, firstchoice->damage));
+      actions.add(new SignalCheckHP(this));
     }
   }
 
   pokemon::monster makeWildPokemon() {
     pokemon::monster wild;
     
-    int select = rand() % 7;
+    int select = rand() % 6;
 
     switch (select) {
     case 0:
@@ -285,7 +418,8 @@ public:
       wildRoarBuffer.loadFromFile(PIKACHU_PATH[2]);
       break;
     }
-
+    
+    setOrigin(wildSprite, 0.5, 1.0);
     return wild;
   }
 
@@ -303,6 +437,7 @@ public:
 
     if (waitTimer.getElapsed().asSeconds() > 2) {
       if (!preBattleSetup) {
+        actions.add(new ClearPreviousActions());
         actions.add(new IdleAction(wildSprite));
         actions.add(new BobAction(playerSprite));
 
@@ -321,8 +456,6 @@ public:
       auto windowSize = getView().getSize();
       double alpha = ease::linear(waitTimer.getElapsed().asSeconds(), 2.0f, 1.0f);
 
-      setOrigin(wildSprite, 0.5, 1.0);
-      setOrigin(playerSprite, 0, 1.0);
       setOrigin(battlePadBGSprite, 0.5, 0.5);
       setOrigin(battlePadFGSprite, 0.35, 1.0);
 
@@ -381,9 +514,15 @@ public:
         choice = playerMonsters[0].move4;
       }
 
-      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
-        canInteract = false;
-        generateBattleActions(*choice);
+      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !isKeyDown) {
+        if (choice != nullptr) {
+          isKeyDown = true;
+          canInteract = false;
+          generateBattleActions(*choice);
+        } // else ignore or play a buzzer sound
+      }
+      else if (canInteract && !sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && isKeyDown) {
+        isKeyDown = false; // force player to release key to press again
       }
     }
 
@@ -458,19 +597,44 @@ public:
 
         // Now draw the title of the moves
         menuText.setPosition(22, 10 + getView().getSize().y / 4.0 * 3.0);
-        menuText.setString(playerMonsters[0].move1->name);
+
+        if(playerMonsters[0].move1 == nullptr) {
+          menuText.setString("-");
+        }
+        else {
+          menuText.setString(playerMonsters[0].move1->name);
+        }
+
         surface.draw(menuText);
 
         menuText.setPosition(10 + getView().getSize().x / 2.0, 10 + getView().getSize().y / 4.0 * 3.0);
-        menuText.setString(playerMonsters[0].move2->name);
+        if (playerMonsters[0].move2 == nullptr) {
+          menuText.setString("-");
+        }
+        else {
+          menuText.setString(playerMonsters[0].move2->name);
+        }
+
         surface.draw(menuText);
 
         menuText.setPosition(22, 10 + getView().getSize().y / 4.0 * 3.5);
-        menuText.setString(playerMonsters[0].move3->name);
+        if (playerMonsters[0].move3 == nullptr) {
+          menuText.setString("-");
+        }
+        else {
+          menuText.setString(playerMonsters[0].move3->name);
+        }
+
         surface.draw(menuText);
 
         menuText.setPosition(10 + getView().getSize().x / 2.0, 10 + getView().getSize().y / 4.0 * 3.5);
-        menuText.setString(playerMonsters[0].move4->name);
+        if (playerMonsters[0].move4 == nullptr) {
+          menuText.setString("-");
+        }
+        else {
+          menuText.setString(playerMonsters[0].move4->name);
+        }
+
         surface.draw(menuText);
 
       }

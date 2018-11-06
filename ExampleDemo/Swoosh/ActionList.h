@@ -29,9 +29,11 @@ public:
 };
 
 class ClearPreviousActions;
+class ClearAllActions;
 
 class ActionList {
   friend class ClearPreviousActions;
+  friend class ClearAllActions;
 private:
   std::vector<ActionItem*> items;
   bool clearFlag;
@@ -41,6 +43,7 @@ public:
   }
 
   void add(ClearPreviousActions* clearAction);
+  void add(ClearAllActions*      clearAction);
 
   const bool isEmpty() {
     return items.size();
@@ -130,7 +133,46 @@ public:
   }
 };
 
+class ClearAllActions : public BlockingActionItem {
+  friend class ActionList;
+
+private:
+  ActionList* list;
+
+public:
+  ClearAllActions() : list(nullptr) {
+
+  }
+
+  virtual void update(double elapsed) {
+    if (isDone())
+      return;
+
+    // Delete and remove everything but this one
+    for (int i = 0; i < list->items.size();) {
+      ActionItem* item = list->items[i];
+      if (item != this) {
+        delete item;
+        list->items.erase(list->items.begin() + i);
+        continue;
+      }
+      i++;
+    }
+
+    list->clearFlag = true;
+    markDone();
+  }
+
+  virtual void draw(sf::RenderTexture& surface) {
+  }
+};
+
 void ActionList::add(ClearPreviousActions* clearAction) {
+  clearAction->list = this;
+  items.push_back((ActionItem*)clearAction);
+}
+
+void ActionList::add(ClearAllActions* clearAction) {
   clearAction->list = this;
   items.push_back((ActionItem*)clearAction);
 }

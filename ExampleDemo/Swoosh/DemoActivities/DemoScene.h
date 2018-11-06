@@ -131,17 +131,12 @@ public:
 
       // Check the battle spawn layer....
       // Down, left, up, right
-      std::uint32_t spawn_tile[] = {
-                      layerThree->tileIDAtCoord(view.getCenter().x, view.getCenter().y + 2),
-                      layerThree->tileIDAtCoord(view.getCenter().x - 2, view.getCenter().y),
-                      layerThree->tileIDAtCoord(view.getCenter().x, view.getCenter().y - 2),
-                      layerThree->tileIDAtCoord(view.getCenter().x + 2, view.getCenter().y)
-      };
+      std::uint32_t spawn_tile = layerThree->tileIDAtCoord(view.getCenter().x, view.getCenter().y);
 
-      if ((spawn_tile[0] == 1127 || spawn_tile[1] == 1127 || spawn_tile[2] == 1127 || spawn_tile[3] == 1127) && isWalking) {
+      if (spawn_tile == 1127 && isWalking) {
         int random_battle = rand() % 100;
 
-        if (random_battle > 90) {
+        if (random_battle == 99) {
           getController().push<segue<Checkerboard>::to<BattleScene>>();
         }
       }

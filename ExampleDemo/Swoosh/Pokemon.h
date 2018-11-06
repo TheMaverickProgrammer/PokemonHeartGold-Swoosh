@@ -30,6 +30,7 @@ namespace pokemon {
     int hp;
     int maxhp;
     int xp;
+    bool isFlying;
   };
 
 
@@ -38,7 +39,7 @@ namespace pokemon {
   const moves fly     = { "fly", element::FLYING, 40, 10 };
   const moves tailwhip = { "tail whip", element::NORMAL, 0, 100 };
   const moves roar =   { "roar", element::NORMAL, 0, 30 };
-  const moves nomove = { "-", element::NORMAL, 0, 0 };
+  const moves nomove = { "-", element::NORMAL, 30, 0 };
 
   const monster pidgey = {
     "pidgey",
@@ -48,9 +49,10 @@ namespace pokemon {
     nullptr,
     element::N_A,
     element::NORMAL,
-    200,
-    200,
-    0
+    100,
+    100,
+    0,
+    false
   };
 
   const monster geodude = {
@@ -63,7 +65,8 @@ namespace pokemon {
    element::GROUND,
    200,
    200,
-   0
+   0,
+   false
   };
 
   const monster ponyta = {
@@ -74,9 +77,10 @@ namespace pokemon {
    nullptr,
    element::N_A,
    element::FIRE,
-   200,
-   200,
-   0
+   150,
+   150,
+   0,
+   false
   };
 
   const monster onyx = {
@@ -89,7 +93,8 @@ namespace pokemon {
    element::GROUND,
    200,
    200,
-   0
+   0,
+   false
   };
 
   const monster oddish = {
@@ -100,9 +105,10 @@ namespace pokemon {
    nullptr,
    element::N_A,
    element::GRASS,
-   200,
-   200,
-   0
+   80,
+   80,
+   0,
+   false
   };
 
   const monster clefairy = {
@@ -113,9 +119,10 @@ namespace pokemon {
    nullptr,
    element::N_A,
    element::NORMAL,
-   200,
-   200,
-   0
+   110,
+   110,
+   0,
+   false
   };
 
   const monster cubone = {
@@ -126,9 +133,10 @@ namespace pokemon {
    nullptr,
    element::N_A,
    element::GROUND,
-   200,
-   200,
-   0
+   100,
+   100,
+   0,
+   false
   };
 
   const monster pikachu = {
@@ -139,8 +147,23 @@ namespace pokemon {
   &roar,
   element::N_A,
   element::ELECTRIC,
-  210,
-  210,
-  0
+  80,
+  80,
+  0,
+  false
+  };
+
+  const monster charizard = {
+    "charizard",
+    &tackle,
+    &fly,
+    nullptr,
+    nullptr,
+    element::N_A,
+    element::FIRE,
+    120,
+    120,
+    0,
+    false
   };
 }
