@@ -9,10 +9,6 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
     <Filter Include="Source Files\Demo">
       <UniqueIdentifier>{1f986165-30af-466b-9677-b156d4820f53}</UniqueIdentifier>
     </Filter>
@@ -25,21 +21,28 @@
     <Filter Include="Source Files\Demo\Utils">
       <UniqueIdentifier>{a7681cc1-3025-4d64-b89b-a6a735ff79e4}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Demo\Utils\Resources">
+      <UniqueIdentifier>{e7c69946-1ca4-433c-a7db-658ccf3600ca}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Demo\Utils\GUI">
+      <UniqueIdentifier>{40b14bb0-f31b-42c2-afb6-c52dc414b9cf}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Demo\Utils\Map">
+      <UniqueIdentifier>{aaa40133-1240-4fc4-bbfb-76753acc4c9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Demo\Utils\Data">
+      <UniqueIdentifier>{12e1994d-a563-44f3-abf0-aac9cc8b7a0e}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TextureLoader.h">
-      <Filter>Source Files\Demo\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="Particle.h">
-      <Filter>Source Files\Demo\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="ResourcePaths.h">
-      <Filter>Source Files\Demo\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Button.h">
       <Filter>Source Files\Demo\Utils</Filter>
     </ClInclude>
     <ClInclude Include="DemoActivities\DemoScene.h">
@@ -84,20 +87,29 @@
     <ClInclude Include="DemoActivities\BattleScene.h">
       <Filter>Source Files\Demo\Activities</Filter>
     </ClInclude>
-    <ClInclude Include="TMXMapLayer.h">
-      <Filter>Source Files\Demo\Utils</Filter>
-    </ClInclude>
-    <ClInclude Include="Pokemon.h">
-      <Filter>Source Files\Demo\Utils</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\Segues\BlackWashFade.h">
       <Filter>Source Files\Demo\Segues</Filter>
     </ClInclude>
     <ClInclude Include="ActionList.h">
       <Filter>Source Files\Demo\Utils</Filter>
     </ClInclude>
+    <ClInclude Include="ResourceManager.h">
+      <Filter>Source Files\Demo\Utils\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="ResourcePaths.h">
+      <Filter>Source Files\Demo\Utils\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="Button.h">
+      <Filter>Source Files\Demo\Utils\GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="TMXMapLayer.h">
+      <Filter>Source Files\Demo\Utils\Map</Filter>
+    </ClInclude>
+    <ClInclude Include="Pokemon.h">
+      <Filter>Source Files\Demo\Utils\Data</Filter>
+    </ClInclude>
     <ClInclude Include="BattleActions.h">
-      <Filter>Source Files\Demo\Utils</Filter>
+      <Filter>Source Files\Demo\Utils\Data</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -106,6 +118,9 @@
     </ClCompile>
     <ClCompile Include="Demo.cpp">
       <Filter>Source Files\Demo</Filter>
+    </ClCompile>
+    <ClCompile Include="ResourceManager.cpp">
+      <Filter>Source Files\Demo\Utils\Resources</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>

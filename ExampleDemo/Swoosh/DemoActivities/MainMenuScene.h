@@ -19,7 +19,7 @@
 
 #include "DemoScene.h"
 #include "BattleScene.h"
-#include "TextureLoader.h"
+#include "ResourceManager.h"
 #include "Particle.h"
 
 #include <iostream>
@@ -30,7 +30,8 @@ using namespace swoosh::game;
 
 class MainMenuScene : public Activity {
 private:
-  sf::Texture* titleTexture;
+  ResourceManager& resources;
+
   sf::Texture overworldTexture;
 
   sf::Sprite title;
@@ -50,7 +51,8 @@ private:
   bool whiteFlash;
   Timer waitTimer;
 public:
-  MainMenuScene(ActivityController& controller, sf::Texture& overworldTexture, bool whiteFlash = true) : whiteFlash(whiteFlash), Activity(controller) { 
+  MainMenuScene(ActivityController& controller, ResourceManager& resources, sf::Texture& overworldTexture, bool whiteFlash = true) 
+    : whiteFlash(whiteFlash), resources(resources), Activity(controller) { 
     fadeMusic = showInfo = false;
 
     this->overworldTexture = sf::Texture(overworldTexture);
@@ -58,8 +60,7 @@ public:
     auto windowSize = getController().getInitialWindowSize();
     view = getController().getWindow().getDefaultView();
 
-    titleTexture = loadTexture(TITLE_PATH);
-    title = sf::Sprite(*titleTexture);
+    title = sf::Sprite(*resources.titleTexture);
     setOrigin(title, 0.5, 0.5);
     title.setPosition(windowSize.x / 2, windowSize.y / 2);
 
@@ -136,7 +137,7 @@ public:
 
     if (whiteFlash) {
       sf::RectangleShape whiteout;
-      whiteout.setSize(sf::Vector2f(getController().getWindow().getSize().x, getController().getWindow().getSize().y));
+      whiteout.setSize(sf::Vector2f(window.getSize().x, window.getSize().y));
       whiteout.setFillColor(sf::Color(255, 255, 255, alpha * 255));
       surface.draw(whiteout);
     }
@@ -147,6 +148,5 @@ public:
   }
 
   virtual ~MainMenuScene() {
-    delete titleTexture;
   }
 };

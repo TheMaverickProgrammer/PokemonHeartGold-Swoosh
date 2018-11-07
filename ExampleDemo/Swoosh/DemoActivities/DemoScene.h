@@ -7,9 +7,8 @@
 
 #include "MainMenuScene.h"
 #include "..\TMXMapLayer.h"
-#include "..\TextureLoader.h"
 #include "..\Particle.h"
-#include "..\ResourcePaths.h"
+#include "..\ResourceManager.h"
 
 #include <Segues\Checkerboard.h>
 #include <Segues\WhiteWashFade.h>
@@ -23,14 +22,10 @@ using namespace swoosh::intent;
 
 class DemoScene : public Activity {
 private:
-  tmx::Map map;
-  MapLayer* layerZero;
-  MapLayer* layerOne;
-  MapLayer* layerTwo;   // collision
-  MapLayer* layerThree; // spawn areas
+  ResourceManager& resources;
+
   sf::View view;
 
-  sf::Texture* playerTexture;
   sf::Texture overworldSnapshot;
   sf::Sprite player;
 
@@ -49,19 +44,11 @@ private:
 
   std::vector<pokemon::monster> playerMonsters;
 public:
-  DemoScene(ActivityController& controller) : Activity(controller) { 
+  DemoScene(ActivityController& controller, ResourceManager &resources) : resources(resources), Activity(controller) { 
     inFocus = false;
     townMusic.openFromFile(TOWN_MUSIC_PATH);
 
-    map.load(OVERWORLD_TMX_PATH);
-
-    layerZero  = new MapLayer(map, 0);
-    layerOne   = new MapLayer(map, 1);
-    layerTwo   = new MapLayer(map, 2);
-    layerThree = new MapLayer(map, 3);
-
-    playerTexture = loadTexture(PLAYER_OW_PATH);
-    player = sf::Sprite(*playerTexture);
+    player = sf::Sprite(*resources.owPlayerTexture);
 
     auto windowSize = getController().getInitialWindowSize();
 
@@ -94,7 +81,7 @@ public:
 
     if (inFocus) {
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
-        getController().push<segue<WhiteWashFade>::to<MainMenuScene>>(overworldSnapshot, false); // Pass into next scene
+        getController().push<segue<WhiteWashFade>::to<MainMenuScene>>(resources, overworldSnapshot, false); // Pass into next scene
       }
 
       bool isWalking = false;
@@ -127,10 +114,10 @@ public:
       // Check the collision layer....
       // Down, left, up, right
       std::uint32_t tile[] = {
-                      layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y+7),
-                      layerTwo->tileIDAtCoord(view.getCenter().x-7, view.getCenter().y),
-                      layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y-7),
-                      layerTwo->tileIDAtCoord(view.getCenter().x+7, view.getCenter().y)
+                      resources.layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y+7),
+                      resources.layerTwo->tileIDAtCoord(view.getCenter().x-7, view.getCenter().y),
+                      resources.layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y-7),
+                      resources.layerTwo->tileIDAtCoord(view.getCenter().x+7, view.getCenter().y)
       };
 
       if (tile[0] == 1132 || tile[1] == 1132 || tile[2] == 1132 || tile[3] == 1132) {
@@ -140,13 +127,13 @@ public:
 
       // Check the battle spawn layer....
       // Down, left, up, right
-      std::uint32_t spawn_tile = layerThree->tileIDAtCoord(view.getCenter().x, view.getCenter().y);
+      std::uint32_t spawn_tile = resources.layerThree->tileIDAtCoord(view.getCenter().x, view.getCenter().y);
 
       if (spawn_tile == 1127 && isWalking) {
         int random_battle = rand() % 100;
 
         if (random_battle == 99) {
-          getController().push<segue<Checkerboard>::to<BattleScene>>(playerMonsters);
+          getController().push<segue<Checkerboard>::to<BattleScene>>(resources, playerMonsters);
         }
       }
     }
@@ -179,9 +166,6 @@ public:
   }
 
   virtual void onDraw(sf::RenderTexture& surface) {
-    sf::RenderWindow& window = getController().getWindow();
-    //setView(view);
-
     int frame = ((int)walkAnim.getElapsed().asMilliseconds()/200) % 4;
 
     if (frame == 3) frame = 1; 
@@ -190,8 +174,8 @@ public:
     setOrigin(player, 0.5, 0.5);
 
     surface.setView(view);
-    surface.draw(*layerZero);
-    surface.draw(*layerOne);
+    surface.draw(*resources.layerZero);
+    surface.draw(*resources.layerOne);
     // surface.draw(*layerTwo); // collision layer
 
     player.setPosition(surface.getView().getCenter());
@@ -204,5 +188,5 @@ public:
     std::cout << "DemoScene onEnd called" << std::endl;
   }
 
-  virtual ~DemoScene() { delete layerOne; delete layerZero; }
+  virtual ~DemoScene() { ; }
 };

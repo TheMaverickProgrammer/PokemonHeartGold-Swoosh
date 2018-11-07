@@ -294,17 +294,17 @@ private:
   double total;
   bool swell;
   bool doOnce;
-  sf::SoundBuffer& buffer;
+  sf::SoundBuffer** buffer;
   sf::Sound& sound;
 public:
-  RoarAction(sf::Sprite& ref, sf::SoundBuffer& buffer, sf::Sound& roar, bool swell=true) : buffer(buffer), sound(roar), swell(swell), ref(ref) {
+  RoarAction(sf::Sprite& ref, sf::SoundBuffer** buffer, sf::Sound& roar, bool swell=true) : buffer(buffer), sound(roar), swell(swell), ref(ref) {
     total = 0;
     doOnce = false;
   }
 
   virtual void update(double elapsed) {
     if (!doOnce) {
-      sound.setBuffer(buffer);
+      sound.setBuffer(**buffer);
       sound.play();
       doOnce = true;
     }
@@ -429,11 +429,11 @@ private:
   double total;
   bool playedOnce;
 public:
-  DefenseDownAction(sf::Sprite& ref, sf::SoundBuffer& buffer, sf::Sound& sound) : buffer(buffer), sound(sound), ref(ref) {
+  DefenseDownAction(sf::Sprite& ref, sf::Texture& texture, sf::SoundBuffer& buffer, sf::Sound& sound) : buffer(buffer), sound(sound), ref(ref) {
     shader.loadFromMemory(MOVING_TEXTURE_SHADER, sf::Shader::Type::Fragment);
     shader.setUniform("texture", sf::Shader::CurrentTexture);
 
-    ddown = loadTexture(DEFENSE_DOWN_PATH);
+    ddown = &texture;
     ddown->setRepeated(true);
     shader.setUniform("pattern", *ddown);
 
@@ -479,11 +479,11 @@ private:
   double total;
   bool playedOnce;
 public:
-  AttackUpAction(sf::Sprite& ref, sf::SoundBuffer& buffer, sf::Sound& sound) : buffer(buffer), sound(sound), ref(ref) {
+  AttackUpAction(sf::Sprite& ref, sf::Texture& texture, sf::SoundBuffer& buffer, sf::Sound& sound) : buffer(buffer), sound(sound), ref(ref) {
     shader.loadFromMemory(MOVING_TEXTURE_SHADER, sf::Shader::Type::Fragment);
     shader.setUniform("texture", sf::Shader::CurrentTexture);
 
-    aup = loadTexture(ATTACK_UP_PATH);
+    aup = &texture;
     aup->setRepeated(true);
     shader.setUniform("pattern", *aup);
 

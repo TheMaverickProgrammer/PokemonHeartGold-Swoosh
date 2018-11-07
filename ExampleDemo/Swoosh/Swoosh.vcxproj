@@ -178,8 +178,8 @@
     <ClInclude Include="DemoActivities\MainMenuScene.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Pokemon.h" />
+    <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ResourcePaths.h" />
-    <ClInclude Include="TextureLoader.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="TMXMapLayer.h" />
   </ItemGroup>
@@ -191,6 +191,7 @@
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
     <ClCompile Include="Demo.cpp" />
+    <ClCompile Include="ResourceManager.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

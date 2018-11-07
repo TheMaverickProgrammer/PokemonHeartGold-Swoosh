@@ -9,9 +9,8 @@
 #include <Segues\WhiteWashFade.h>
 #include <Segues\BlackWashFade.h>
 
-#include "TextureLoader.h"
+#include "ResourceManager.h"
 #include "Particle.h"
-#include "ResourcePaths.h"
 #include "Pokemon.h"
 #include "ActionList.h"
 #include "BattleActions.h"
@@ -94,15 +93,7 @@ auto WHITE_SHADER = GLSL
 
 class BattleScene : public Activity {
 private:
-  sf::Texture *playerTexture;
-  sf::Texture *wildTexture;
-  sf::Texture *battleAreaTexture;
-  sf::Texture *battlePadFGTexture;
-  sf::Texture *battlePadBGTexture;
-  sf::Texture *textboxTexture;
-  sf::Texture *playerStatusTexture;
-  sf::Texture *enemyStatusTexture;
-  sf::Texture *particleTexture;
+  ResourceManager& resources;
 
   sf::Sprite wildSprite;
   sf::Sprite playerSprite;
@@ -116,23 +107,10 @@ private:
   sf::Shader shader;
   sf::Shader statusShader;
 
-  sf::Font   menuFont;
   sf::Text   menuText;
   sf::Text   statusText;
 
   sf::Music battleMusic;
-
-  sf::SoundBuffer wildRoarBuffer;
-  sf::SoundBuffer playerRoarBuffer;
-  sf::SoundBuffer statsFallBuffer;
-  sf::SoundBuffer statsRiseBuffer;
-  sf::SoundBuffer selectBuffer;
-  sf::SoundBuffer attackWeakBuffer;
-  sf::SoundBuffer attackNormalBuffer;
-  sf::SoundBuffer attackSuperBuffer;
-  sf::SoundBuffer xpBuffer;
-  sf::SoundBuffer tailWhipBuffer;
-  sf::SoundBuffer flyBuffer;
 
   sf::Sound sound;
   
@@ -268,14 +246,14 @@ private:
         clearedList = true;
 
         this->ref->actions.add(new IdleAction(ref->playerSprite));
-        this->ref->actions.add(new RoarAction(ref->wildSprite, ref->wildRoarBuffer, ref->sound, false));
+        this->ref->actions.add(new RoarAction(ref->wildSprite, &ref->resources.wildRoarBuffer, ref->sound, false));
         this->ref->actions.add(new FaintAction(ref->wildSprite));
         this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->wild.name + " fainted!"));
-        this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
-        GainXPAction* xpAction = new GainXPAction(ref->playerMonsters[0], ref->wild, ref->xpBuffer, ref->sound);
+        this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
+        GainXPAction* xpAction = new GainXPAction(ref->playerMonsters[0], ref->wild, *ref->resources.xpBuffer, ref->sound);
         this->ref->actions.add(xpAction);
         this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->playerMonsters[0].name + " gained\n" + std::to_string(xpAction->getXP()) + " XP!"));
-        this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
+        this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
 
         leaveScene = true;
       }
@@ -287,25 +265,25 @@ private:
         }
 
         this->ref->actions.add(new IdleAction(ref->wildSprite));
-        this->ref->actions.add(new RoarAction(ref->playerSprite, ref->playerRoarBuffer, ref->sound, false));
+        this->ref->actions.add(new RoarAction(ref->playerSprite, &ref->resources.playerRoarBuffer, ref->sound, false));
         this->ref->actions.add(new FaintAction(ref->playerSprite));
         this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->playerMonsters[0].name + " fainted!"));
-        this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
+        this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
 
         
         if (ref->playerMonsters.size() - 1 == 0) {
           // we're out of pokemon
           this->ref->actions.add(new ChangeText(ref->output, std::string() + "Trainer whited out!"));
-          this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
+          this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
 
           leaveScene = true;
         }
         else {
           this->ref->actions.add(new ChangeText(ref->output, std::string() + "Go " + ref->playerMonsters[1].name + "!"));
           this->ref->actions.add(new SpawnNewPokemon(this->ref));
-          this->ref->actions.add(new RoarAction(ref->playerSprite, ref->playerRoarBuffer, ref->sound));
+          this->ref->actions.add(new RoarAction(ref->playerSprite, &ref->resources.playerRoarBuffer, ref->sound));
           this->ref->actions.add(new IdleAction(ref->playerSprite));
-          this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, ref->selectBuffer, ref->sound));
+          this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
           this->ref->actions.add(new SignalRoundOver(this->ref));
 
         }
@@ -324,20 +302,12 @@ private:
 
 public:
 
-  BattleScene(ActivityController& controller, std::vector<pokemon::monster>& monsters) : playerMonsters(monsters) , Activity(controller) {
+  BattleScene(ActivityController& controller, ResourceManager& resources, std::vector<pokemon::monster>& monsters) 
+    : playerMonsters(monsters) , resources(resources), Activity(controller) {
     fadeMusic = preBattleSetup = canInteract = isKeyDown = doIntro = false;
 
     // Load sounds
     battleMusic.openFromFile(BATTLE_MUSIC_PATH);
-    statsFallBuffer.loadFromFile(STATS_LOWER_SFX);
-    statsRiseBuffer.loadFromFile(STATS_RISE_SFX);
-    selectBuffer.loadFromFile(SELECT_SFX);
-    attackWeakBuffer.loadFromFile(HIT_WEAK_SFX);
-    attackNormalBuffer.loadFromFile(HIT_NORMAL_SFX);
-    attackSuperBuffer.loadFromFile(HIT_SUPER_SFX);
-    xpBuffer.loadFromFile(XP_SFX);
-    tailWhipBuffer.loadFromFile(TAIL_WHIP_SFX);
-    flyBuffer.loadFromFile(FLY_SFX);
     sound.setVolume(30);
 
     // Load shader
@@ -354,31 +324,22 @@ public:
     loadPlayerPokemonData();
 
     // Load graphics
-    battleAreaTexture = loadTexture(GRASS_AREA);
-    battlePadFGTexture = loadTexture(GRASS_PAD_FG);
-    battlePadBGTexture = loadTexture(GRASS_PAD_BG);
-    textboxTexture = loadTexture(TEXTBOX_PATH);
-    playerStatusTexture = loadTexture(PLAYER_STATUS_PATH);
-    enemyStatusTexture = loadTexture(ENEMY_STATUS_PATH);
-    particleTexture = loadTexture(PARTICLE_PATH);
-
-    battleAreaSprite = sf::Sprite(*battleAreaTexture);
-    battlePadBGSprite = sf::Sprite(*battlePadBGTexture);
-    battlePadFGSprite = sf::Sprite(*battlePadFGTexture);
-    textboxSprite = sf::Sprite(*textboxTexture);
-    playerStatusSprite = sf::Sprite(*playerStatusTexture);
-    enemyStatusSprite = sf::Sprite(*enemyStatusTexture);
+    battleAreaSprite   = sf::Sprite(*resources.battleAreaTexture);
+    battlePadBGSprite  = sf::Sprite(*resources.battlePadBGTexture);
+    battlePadFGSprite  = sf::Sprite(*resources.battlePadFGTexture);
+    textboxSprite      = sf::Sprite(*resources.textboxTexture);
+    playerStatusSprite = sf::Sprite(*resources.playerStatusTexture);
+    enemyStatusSprite  = sf::Sprite(*resources.enemyStatusTexture);
 
     setOrigin(textboxSprite, 0.0, 1.0);
     textboxSprite.setScale(1.59f, 1.75f);
 
     // Load font
-    menuFont.loadFromFile(GAME_FONT);
-    menuText.setFont(menuFont);
+    menuText.setFont(*resources.menuFont);
     menuText.setScale(0.45, 0.45);
     menuText.setFillColor(sf::Color::Black);
 
-    statusText.setFont(menuFont);
+    statusText.setFont(*resources.menuFont);
     statusText.setScale(0.2, 0.2);
     statusText.setFillColor(sf::Color::Black);
 
@@ -387,29 +348,27 @@ public:
   }
 
   void loadPlayerPokemonData() {
+    if (resources.playerTexture) delete resources.playerTexture;
+    if (resources.playerRoarBuffer) delete resources.playerRoarBuffer;
+
     if (playerMonsters[0].name == "pikachu") {
-      playerRoarBuffer.loadFromFile(PIKACHU_PATH[2]);
-      if (playerTexture) delete playerTexture;
-      playerTexture = loadTexture(PIKACHU_PATH[FACING::BACK]);
+      resources.playerRoarBuffer = resources.loadSound(PIKACHU_PATH[2]);
+      resources.playerTexture = resources.loadTexture(PIKACHU_PATH[FACING::BACK]);
     } else if (playerMonsters[0].name == "charizard") {
-      playerRoarBuffer.loadFromFile(CHARIZARD_PATH[2]);
-      if (playerTexture) delete playerTexture;
-      playerTexture = loadTexture(CHARIZARD_PATH[FACING::BACK]);
+      resources.playerRoarBuffer = resources.loadSound(CHARIZARD_PATH[2]);
+      resources.playerTexture = resources.loadTexture(CHARIZARD_PATH[FACING::BACK]);
     } else if (playerMonsters[0].name == "roserade") {
-      playerRoarBuffer.loadFromFile(ROSERADE_PATH[2]);
-      if (playerTexture) delete playerTexture;
-      playerTexture = loadTexture(ROSERADE_PATH[FACING::BACK]);
+      resources.playerRoarBuffer = resources.loadSound(ROSERADE_PATH[2]);
+      resources.playerTexture = resources.loadTexture(ROSERADE_PATH[FACING::BACK]);
     } else if (playerMonsters[0].name == "onix") {
-      playerRoarBuffer.loadFromFile(ONYX_PATH[2]);
-      if (playerTexture) delete playerTexture;
-      playerTexture = loadTexture(ONYX_PATH[FACING::BACK]);
+      resources.playerRoarBuffer = resources.loadSound(ONYX_PATH[2]);
+      resources.playerTexture = resources.loadTexture(ONYX_PATH[FACING::BACK]);
     } else if (playerMonsters[0].name == "piplup") {
-      playerRoarBuffer.loadFromFile(PIPLUP_PATH[2]);
-      if (playerTexture) delete playerTexture;
-      playerTexture = loadTexture(PIPLUP_PATH[FACING::BACK]);
+      resources.playerRoarBuffer = resources.loadSound(PIPLUP_PATH[2]);
+      resources.playerTexture = resources.loadTexture(PIPLUP_PATH[FACING::BACK]);
     }
 
-    playerSprite.setTexture(*playerTexture, true);
+    playerSprite.setTexture(*resources.playerTexture, true);
     setOrigin(playerSprite, 0.5, 1.0);
   }
 
@@ -449,18 +408,18 @@ public:
     actions.add(new IdleAction(playerSprite));
 
     if (monsterchoice->speed > playerchoice.speed) {
-      decideBattleOrder(&wild, monsterchoice, &wildSprite, &wildRoarBuffer, &playerMonsters[0], &playerchoice, &playerSprite, &playerRoarBuffer);
-      decideBattleOrder(&playerMonsters[0], &playerchoice, &playerSprite, &playerRoarBuffer, &wild, monsterchoice, &wildSprite, &wildRoarBuffer);
+      decideBattleOrder(&wild, monsterchoice, &wildSprite, &resources.wildRoarBuffer, &playerMonsters[0], &playerchoice, &playerSprite, &resources.playerRoarBuffer);
+      decideBattleOrder(&playerMonsters[0], &playerchoice, &playerSprite, &resources.playerRoarBuffer, &wild, monsterchoice, &wildSprite, &resources.wildRoarBuffer);
     }
     else {
-      decideBattleOrder(&playerMonsters[0], &playerchoice, &playerSprite, &playerRoarBuffer, &wild, monsterchoice, &wildSprite, &wildRoarBuffer);
-      decideBattleOrder(&wild, monsterchoice, &wildSprite, &wildRoarBuffer, &playerMonsters[0], &playerchoice, &playerSprite, &playerRoarBuffer);
+      decideBattleOrder(&playerMonsters[0], &playerchoice, &playerSprite, &resources.playerRoarBuffer, &wild, monsterchoice, &wildSprite, &resources.wildRoarBuffer);
+      decideBattleOrder(&wild, monsterchoice, &wildSprite, &resources.wildRoarBuffer, &playerMonsters[0], &playerchoice, &playerSprite, &resources.playerRoarBuffer);
     }
 
     actions.add(new SignalRoundOver(this));
   }
 
-  void decideBattleOrder(pokemon::monster* first, const pokemon::moves* firstchoice, sf::Sprite* firstSprite, sf::SoundBuffer* firstRoarBuffer, pokemon::monster* second, const pokemon::moves* secondchoice, sf::Sprite* secondSprite, sf::SoundBuffer* secondRoarBuffer) {
+  void decideBattleOrder(pokemon::monster* first, const pokemon::moves* firstchoice, sf::Sprite* firstSprite, sf::SoundBuffer** firstRoarBuffer, pokemon::monster* second, const pokemon::moves* secondchoice, sf::Sprite* secondSprite, sf::SoundBuffer** secondRoarBuffer) {
     FACING facing = FACING::BACK;
 
     if (first == &wild)
@@ -471,76 +430,76 @@ public:
     if (second->isFlying) {
       // If the attacking pokemon was also flying, come back down
       if (first->isFlying) {
-        actions.add(new FlyAction(*firstSprite, *first, flyBuffer, sound));
+        actions.add(new FlyAction(*firstSprite, *first, *resources.flyBuffer, sound));
       }
 
       actions.add(new ChangeText(output, std::string(first->name) + " missed!"));
-      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       return;
     }
 
     if (first->isFlying) {
       actions.add(new ChangeText(output, std::string(first->name) + " is flying!"));
-      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
-      actions.add(new FlyAction(*firstSprite, *first, flyBuffer, sound));
+      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+      actions.add(new FlyAction(*firstSprite, *first, *resources.flyBuffer, sound));
       actions.add(new ChangeText(output, std::string(first->name) + " attacked\nform above!"));
-      actions.add(new TakeDamage(*second, firstchoice->damage, attackNormalBuffer, sound));
-      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+      actions.add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
+      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
       actions.add(new SignalCheckHP(this));
-      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
     }
     else {
       if (firstchoice->name == "tackle") {
         actions.add(new ChangeText(output, std::string(first->name) + " used tackle!"));
         actions.add(new TackleAction(*firstSprite, facing));
-        actions.add(new TakeDamage(*second, firstchoice->damage, attackNormalBuffer, sound));
+        actions.add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
         actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       }
       else if (firstchoice->name == "tail whip") {
         actions.add(new ChangeText(output, std::string(first->name) + " used tail whip!"));
-        actions.add(new TailWhipAction(*firstSprite, tailWhipBuffer, sound));
-        actions.add(new DefenseDownAction(*secondSprite, statsFallBuffer, sound));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+        actions.add(new TailWhipAction(*firstSprite, *resources.tailWhipBuffer, sound));
+        actions.add(new DefenseDownAction(*secondSprite, *resources.ddownTexture, *resources.statsFallBuffer, sound));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
         actions.add(new ChangeText(output, std::string(second->name) + "'s defense\nfell sharply!"));
         actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       }
       else if (firstchoice->name == "roar") {
         actions.add(new ChangeText(output, std::string(first->name) + " used roar!"));
-        actions.add(new RoarAction(*firstSprite, *firstRoarBuffer, sound));
-        actions.add(new AttackUpAction(*firstSprite, statsRiseBuffer, sound));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+        actions.add(new RoarAction(*firstSprite, firstRoarBuffer, sound));
+        actions.add(new AttackUpAction(*firstSprite, *resources.aupTexture, *resources.statsRiseBuffer, sound));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
         actions.add(new ChangeText(output, std::string(first->name) + "'s attack\nrose!"));
         actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       }
       else if (firstchoice->name == "thunder") {
         actions.add(new ChangeText(output, std::string(first->name) + " used thunder!"));
-        actions.add(new TakeDamage(*second, firstchoice->damage, attackNormalBuffer, sound));
+        actions.add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
         actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       }
       else if (firstchoice->name == "fly") {
-        actions.add(new FlyAction(*firstSprite, *first, flyBuffer, sound));
+        actions.add(new FlyAction(*firstSprite, *first, *resources.flyBuffer, sound));
         actions.add(new ChangeText(output, std::string(first->name) + " used fly!"));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
         actions.add(new ChangeText(output, std::string(first->name) + " flew\nup into the sky!"));
         actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       }
       else if (firstchoice->name == "nomove") {
         actions.add(new ChangeText(output, std::string(first->name) + " is struggling!"));
-        actions.add(new TakeDamage(*second, firstchoice->damage, attackNormalBuffer, sound));
-        actions.add(new TakeDamage(*first, firstchoice->damage, attackNormalBuffer, sound));
+        actions.add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
+        actions.add(new TakeDamage(*first, firstchoice->damage, *resources.attackNormalBuffer, sound));
         actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       }
     }
@@ -551,65 +510,68 @@ public:
     
     int select = rand() % 6;
 
+    if (resources.wildTexture) delete resources.wildTexture;
+    if (resources.wildRoarBuffer) delete resources.wildRoarBuffer;
+
     switch (select) {
     case 0:
       wild = pokemon::monster(pokemon::pidgey);
-      wildTexture = loadTexture(PIDGEY_PATH[FACING::FRONT]);
-      wildSprite = sf::Sprite(*wildTexture);
-      wildRoarBuffer.loadFromFile(PIDGEY_PATH[2]);
+      resources.wildTexture = resources.loadTexture(PIDGEY_PATH[FACING::FRONT]);
+      wildSprite = sf::Sprite(*resources.wildTexture);
+      resources.wildRoarBuffer = resources.loadSound(PIDGEY_PATH[2]);
       wild.level = 5 + rand() % 8;
       wild.xp = 25 * wild.level/2.0; // base worth 25 xp
       break;
     case 1:
       wild = pokemon::monster(pokemon::clefairy);
-      wildTexture = loadTexture(CLEFAIRY_PATH[FACING::FRONT]);
-      wildSprite = sf::Sprite(*wildTexture);
-      wildRoarBuffer.loadFromFile(CLEFAIRY_PATH[2]);
+      resources.wildTexture = resources.loadTexture(CLEFAIRY_PATH[FACING::FRONT]);
+      wildSprite = sf::Sprite(*resources.wildTexture);
+      resources.wildRoarBuffer = resources.loadSound(CLEFAIRY_PATH[2]);
       wild.level = 5 + rand() % 4;
       wild.xp = 50 * wild.level / 2.0; // base worth 50 xp
 
       break;
     case 2:
       wild = pokemon::monster(pokemon::geodude);
-      wildTexture = loadTexture(GEODUDE_PATH[FACING::FRONT]);
-      wildSprite = sf::Sprite(*wildTexture);
-      wildRoarBuffer.loadFromFile(GEODUDE_PATH[2]);
+      resources.wildTexture = resources.loadTexture(GEODUDE_PATH[FACING::FRONT]);
+      wildSprite = sf::Sprite(*resources.wildTexture);
+      resources.wildRoarBuffer = resources.loadSound(GEODUDE_PATH[2]);
       wild.level = 5 + rand() % 4;
       wild.xp = 33 * wild.level / 2.0; // base worth 33 xp
 
       break;
     case 3:
       wild = pokemon::monster(pokemon::ponyta);
-      wildTexture = loadTexture(PONYTA_PATH[FACING::FRONT]);
-      wildSprite = sf::Sprite(*wildTexture);
-      wildRoarBuffer.loadFromFile(PONYTA_PATH[2]);
+      resources.wildTexture = resources.loadTexture(PONYTA_PATH[FACING::FRONT]);
+      wildSprite = sf::Sprite(*resources.wildTexture);
+      resources.wildRoarBuffer = resources.loadSound(PONYTA_PATH[2]);
       wild.level = 5 + rand() % 4;
       wild.xp = 21 * wild.level / 2.0; // base worth 21 xp
 
       break;
     case 4:
       wild = pokemon::monster(pokemon::cubone);
-      wildTexture = loadTexture(CUBONE_PATH[FACING::FRONT]);
-      wildSprite = sf::Sprite(*wildTexture);
-      wildRoarBuffer.loadFromFile(CUBONE_PATH[2]);
+      resources.wildTexture = resources.loadTexture(CUBONE_PATH[FACING::FRONT]);
+      wildSprite = sf::Sprite(*resources.wildTexture);
+      resources.wildRoarBuffer = resources.loadSound(CUBONE_PATH[2]);
       wild.level = 5 + rand() % 4;
       wild.xp = 20 * wild.level / 2.0; // base worth 20 xp
 
       break;
     case 5:
       wild = pokemon::monster(pokemon::oddish);
-      wildTexture = loadTexture(ODISH_PATH[FACING::FRONT]);
-      wildSprite = sf::Sprite(*wildTexture);
-      wildRoarBuffer.loadFromFile(ODISH_PATH[2]);
+      resources.wildTexture = resources.loadTexture(ODISH_PATH[FACING::FRONT]);
+      wildSprite = sf::Sprite(*resources.wildTexture);
+      resources.wildRoarBuffer = resources.loadSound(ODISH_PATH[2]);
       wild.level = 5 + rand() % 1;
       wild.xp = 15 * wild.level / 2.0; // base worth 15 xp
 
       break;
     case 6:
       wild = pokemon::monster(pokemon::pikachu);
-      wildTexture = loadTexture(PIKACHU_PATH[FACING::FRONT]);
-      wildSprite = sf::Sprite(*wildTexture);
-      wildRoarBuffer.loadFromFile(PIKACHU_PATH[2]);
+      resources.wildTexture = resources.loadTexture(PIKACHU_PATH[FACING::FRONT]);
+      wildSprite = sf::Sprite(*resources.wildTexture);
+      resources.wildRoarBuffer = resources.loadSound(PIKACHU_PATH[2]);
       wild.level = 5 + rand() % 8;
       wild.xp = 12 * wild.level / 2.0; // base worth 12 xp
 
@@ -655,7 +617,7 @@ public:
       int randSpeedY = rand() % 320;
 
       particle p;
-      p.sprite = sf::Sprite(*particleTexture);
+      p.sprite = sf::Sprite(*resources.particleTexture);
       p.pos = position;
       p.speed = sf::Vector2f(randSpeedX, -randSpeedY);
       p.friction = sf::Vector2f(0.96f, 0.96f);
@@ -683,8 +645,8 @@ public:
 
         if (!doIntro) {
           actions.add(new ChangeText(output, "A wild " + std::string(wild.name) + " appeard!"));
-          actions.add(new RoarAction(wildSprite, wildRoarBuffer, sound));
-          actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, selectBuffer, sound));
+          actions.add(new RoarAction(wildSprite, &resources.wildRoarBuffer, sound));
+          actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
           actions.add(new SignalRoundOver(this)); // Prepare for keyboard interaction
           doIntro = true;
         }
@@ -745,7 +707,7 @@ public:
         choice = &pokemon::fly;
 
         actions.add(new ChangeText(output, "Your pokemon is still\nin the sky!"));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Space, selectBuffer, sound));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Space, *resources.selectBuffer, sound));
         generateBattleActions(*choice);
       }
       else {
@@ -769,7 +731,7 @@ public:
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && !isKeyDown) {
         if (choice != nullptr) {
           isKeyDown = true;
-          sound.setBuffer(selectBuffer);
+          sound.setBuffer(*resources.selectBuffer);
           sound.play();
         } // else ignore or play a buzzer sound
       }
@@ -944,12 +906,5 @@ public:
   }
 
   virtual ~BattleScene() {
-    delete wildTexture;
-    delete playerTexture;
-    delete battleAreaTexture;
-    delete battlePadFGTexture;
-    delete battlePadBGTexture;
-    delete textboxTexture;
-    delete particleTexture;
   }
 };
