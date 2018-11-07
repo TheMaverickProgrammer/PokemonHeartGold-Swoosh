@@ -122,5 +122,11 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Source Files\Demo\Utils\Resources</Filter>
     </ClCompile>
+    <ClCompile Include="BattleActions.cpp">
+      <Filter>Source Files\Demo\Utils\Data</Filter>
+    </ClCompile>
+    <ClCompile Include="ActionList.cpp">
+      <Filter>Source Files\Demo\Utils</Filter>
+    </ClCompile>
   </ItemGroup>
 </Project>

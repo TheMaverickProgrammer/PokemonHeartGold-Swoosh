@@ -21,7 +21,7 @@ using namespace swoosh;
 using namespace swoosh::intent;
 using namespace swoosh::game;
 
-auto MONOTONE_SHADER = GLSL
+static auto MONOTONE_SHADER = GLSL
 (
   110,
   uniform sampler2D texture;
@@ -36,7 +36,7 @@ auto MONOTONE_SHADER = GLSL
   }
 );
 
-auto STATUS_BAR_SHADER = GLSL
+static auto STATUS_BAR_SHADER = GLSL
 (
   110,
   uniform sampler2D texture;
@@ -45,6 +45,7 @@ auto STATUS_BAR_SHADER = GLSL
 
   void main()
   {
+    // We encode darkened pixels in the alpha channel
     vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
 
     // hp is the red color coded pixels in the sample
@@ -53,10 +54,10 @@ auto STATUS_BAR_SHADER = GLSL
       normal = normal / 255.0;
 
       if (pixel.r > normal) {
-        pixel = vec4(0.0, 1.0, 0.0, 1.0);
+        pixel = vec4(0.0, 1.0*pixel.a, 0.0, 1.0);
       }
       else {
-        pixel = vec4(0.5, 0.5, 0.5, 1.0);
+        pixel = vec4(0.5*pixel.a, 0.5*pixel.a, 0.5*pixel.a, 1.0);
       }
     }  else if (pixel.r == 0.0 && pixel.g == 0.0) {
       // xp is the blue color coded pixels in the sample
@@ -65,10 +66,10 @@ auto STATUS_BAR_SHADER = GLSL
       normal = normal / 255.0;
 
       if (pixel.b > normal) {
-        pixel = vec4(0.04, 1.0, 0.95, 1.0);
+        pixel = vec4(0.04*pixel.a, 1.0*pixel.a, 0.95*pixel.a, 1.0);
       }
       else {
-        pixel = vec4(0.5, 0.5, 0.5, 1.0);
+        pixel = vec4(0.5*pixel.a, 0.5*pixel.a, 0.5*pixel.a, 1.0);
       }
     }
 
@@ -76,7 +77,7 @@ auto STATUS_BAR_SHADER = GLSL
   }
 );
 
-auto WHITE_SHADER = GLSL
+static auto WHITE_SHADER = GLSL
 (
   110,
   uniform sampler2D texture;
@@ -206,7 +207,7 @@ private:
         this->ref->playerMonsters.erase(this->ref->playerMonsters.begin());
         this->ref->loadPlayerPokemonData();
         isLoaded = true;
-        ref->spawnParticles(this->ref->playerSprite.getPosition());
+        ref->spawnParticles(this->ref->resources.particleTexture, this->ref->playerSprite.getPosition());
       }
 
       scale = ease::linear(total, 0.5, 1.0);
@@ -494,13 +495,19 @@ public:
         actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       }
+      else if (firstchoice->name == "flamethrower") {
+        actions.add(new ChangeText(output, std::string(first->name) + " used\nflamethrower!"));
+        actions.add(new FlamethrowerAction(*this, *firstSprite, facing, *resources.flameBuffer, sound, *secondSprite, *resources.fireTexture));
+        actions.add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
+        actions.add(new SignalCheckHP(this));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+      }
       else if (firstchoice->name == "nomove") {
         actions.add(new ChangeText(output, std::string(first->name) + " is struggling!"));
         actions.add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
         actions.add(new TakeDamage(*first, firstchoice->damage, *resources.attackNormalBuffer, sound));
         actions.add(new SignalCheckHP(this));
         actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
-
       }
     }
   }
@@ -592,12 +599,19 @@ public:
   void updateParticles(double elapsed) {
     int i = 0;
     for (auto& p : particles) {
-      p.speed = sf::Vector2f(p.speed.x * p.friction.x, p.speed.y * p.friction.y);
-      p.pos += sf::Vector2f(p.speed.x * elapsed, p.speed.y * elapsed);
+      p.speed +=  sf::Vector2f(p.acceleration.x * elapsed, p.acceleration.y * elapsed);
+      p.pos += sf::Vector2f(p.speed.x * p.friction.x * elapsed , p.speed.y * p.friction.y * elapsed );
 
       p.sprite.setPosition(p.pos);
-      p.sprite.setScale(2.0*(p.life / p.lifetime), 2.0*(p.life / p.lifetime));
+
+      double alpha = 0;
+
+      if (p.sprite.getTexture() == resources.fireTexture)
+        alpha = 1.0;
+
+      p.sprite.setScale(2.0*(alpha - (p.life / p.lifetime)), 2.0*(alpha - (p.life / p.lifetime)));
       p.sprite.setColor(sf::Color(p.sprite.getColor().r, p.sprite.getColor().g, p.sprite.getColor().b, 255 * p.life / p.lifetime));
+      p.sprite.setRotation(p.sprite.getRotation() + (elapsed * 20));
       p.life -= elapsed;
 
       if (p.life <= 0) {
@@ -609,28 +623,54 @@ public:
     }
   }
 
-  void spawnParticles(sf::Vector2f position) {
-    for (int i = 100; i > 0; i--) {
+  public:
+
+    // used as shorthand notation for pokeball
+  void spawnParticles(sf::Texture* texture, sf::Vector2f position, int numPerFrame=100) {
+    for (int i = numPerFrame; i > 0; i--) {
       int randNegative = rand() % 2 == 0 ? -1 : 1;
       int randSpeedX = rand() % 220;
       randSpeedX *= randNegative;
       int randSpeedY = rand() % 320;
 
       particle p;
-      p.sprite = sf::Sprite(*resources.particleTexture);
+      p.sprite = sf::Sprite(*texture);
       p.pos = position;
       p.speed = sf::Vector2f(randSpeedX, -randSpeedY);
-      p.friction = sf::Vector2f(0.96f, 0.96f);
+      p.friction = sf::Vector2f(0.46f, 0.46f);
       p.life = 1;
       p.lifetime = 1;
       p.sprite.setPosition(p.pos);
 
       particles.push_back(p);
     }
+
+    updateParticles(0); // set sprite positions for drawing
   }
 
+  void spawnParticles(sf::Texture* texture, sf::Vector2f position, sf::Vector2f speed, sf::Vector2f friction, sf::Vector2f accel, int numPerFrame) {
+    for (int i = numPerFrame; i > 0; i--) {
+      particle p;
+      p.sprite = sf::Sprite(*texture);
+      p.pos = position;
+      p.speed = speed;
+      p.acceleration = accel;
+      p.friction = friction;
+      p.life = 1;
+      p.lifetime = 1;
+      p.sprite.setPosition(p.pos);
 
+      particles.push_back(p);
+    }
+
+    updateParticles(0); // set sprite positions for drawing
+  }
+
+  private:
   virtual void onUpdate(double elapsed) {
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
+      elapsed *= 2.5;
+
     updateParticles(elapsed);
 
     if (fadeMusic) {

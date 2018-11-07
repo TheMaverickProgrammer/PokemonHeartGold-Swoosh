@@ -29,6 +29,7 @@ public:
   sf::Texture *playerStatusTexture;
   sf::Texture *enemyStatusTexture;
   sf::Texture *particleTexture;
+  sf::Texture *fireTexture;
   sf::Texture *titleTexture;
   sf::Texture *ddownTexture;
   sf::Texture *aupTexture;

@@ -91,9 +91,11 @@ public:
       showInfo = true;
     }
 
-    if (showInfo && (sf::Keyboard::isKeyPressed(sf::Keyboard::Return) || sf::Keyboard::isKeyPressed(sf::Keyboard::Space))) {
-      using intent::segue;
-      getController().queuePop<segue<BlendFadeIn>>();
+    if (sf::Keyboard::isKeyPressed(sf::Keyboard::Return) || sf::Keyboard::isKeyPressed(sf::Keyboard::Space)) {
+      if (showInfo && !whiteFlash || whiteFlash) {
+        using intent::segue;
+        getController().queuePop<segue<BlendFadeIn>>();
+      }
     }
 
     // we're coming back from overworld

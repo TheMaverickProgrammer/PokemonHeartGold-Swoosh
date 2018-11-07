@@ -64,11 +64,11 @@ public:
     playerDirection = Direction::DOWN;
 
     playerMonsters.clear();
-    playerMonsters.push_back(pokemon::monster(pokemon::pikachu));
     playerMonsters.push_back(pokemon::monster(pokemon::charizard));
+    playerMonsters.push_back(pokemon::monster(pokemon::pikachu));
+    playerMonsters.push_back(pokemon::monster(pokemon::onyx));
     playerMonsters.push_back(pokemon::monster(pokemon::piplup));
     playerMonsters.push_back(pokemon::monster(pokemon::roserade));
-    playerMonsters.push_back(pokemon::monster(pokemon::onyx));
   }
 
   virtual void onStart() {

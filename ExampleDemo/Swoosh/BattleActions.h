@@ -1,9 +1,16 @@
 #pragma once
+#include <SFML\Graphics.hpp>
+#include <SFML\Audio.hpp>
 #include <Swoosh\Ease.h>
 #include <Swoosh\Game.h>
-#include "ResourcePaths.h"
+#include <Swoosh\EmbedGLSL.h>
+#include "ActionList.h"
+
+#include "Pokemon.h"
 
 #include <iostream>
+
+using namespace swoosh;
 
 class IdleAction : public ActionItem {
 private:
@@ -127,7 +134,7 @@ public:
       if (monster.xp == 100) {
         monster.xp = 0;
         monster.level++;
-        monster.maxhp += monster.maxhp * 0.10;
+        monster.maxhp += (int)(monster.maxhp * 0.10);
         monster.hp = monster.maxhp;
       }
     }
@@ -183,6 +190,31 @@ public:
     surface.draw(ref);
   }
 };
+
+class BattleScene;
+
+class FlamethrowerAction : public BlockingActionItem {
+private:
+  sf::Sprite& ref;
+  sf::Sprite& target;
+  sf::SoundBuffer &buffer;
+  sf::Sound& sound;
+  sf::Texture& flame;
+  int facing;
+
+  sf::Vector2f original;
+  BattleScene& scene;
+
+  double total;
+  bool doOnce;
+public:
+  FlamethrowerAction(BattleScene& scene, sf::Sprite& ref, int facing, sf::SoundBuffer& buffer, sf::Sound& sound, sf::Sprite& target, sf::Texture& flame);
+  ~FlamethrowerAction();
+
+  virtual void update(double elapsed);
+  virtual void draw(sf::RenderTexture& surface);
+};
+
 
 class TackleAction : public BlockingActionItem {
 private:
@@ -410,7 +442,7 @@ public:
   }
 };
 
-auto MOVING_TEXTURE_SHADER = GLSL
+static auto MOVING_TEXTURE_SHADER = GLSL
 (
   110,
   uniform sampler2D texture;

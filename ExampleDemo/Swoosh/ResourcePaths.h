@@ -43,6 +43,7 @@ RESOURCE GRASS_PAD_FG = "resources/battle/grass_battle_fg.png";
 RESOURCE DEFENSE_DOWN_PATH = "resources/battle/effects/ddown.png";
 RESOURCE ATTACK_UP_PATH    = "resources/battle/effects/aup.png";
 RESOURCE PARTICLE_PATH = "resources/battle/effects/pokeball.png";
+RESOURCE FIREBALL_PATH = "resources/battle/effects/fire.png";
 
 RESOURCE TEXTBOX_PATH = "resources/textbox.png";
 RESOURCE GAME_FONT = "resources/pokemon.ttf";

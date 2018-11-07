@@ -36,7 +36,8 @@ namespace pokemon {
 
 
   const moves tackle       = { "tackle", element::NORMAL, 30, 30 };
-  const moves thundershock = { "thunder", element::ELECTRIC, 40, 10 };
+  const moves thundershock = { "thunder", element::ELECTRIC, 40, 20 };
+  const moves flamethrower = { "flamethrower", element::FIRE, 50, 10 };
   const moves fly     = { "fly", element::FLYING, 40, 10 };
   const moves tailwhip = { "tail whip", element::NORMAL, 0, 100 };
   const moves roar =   { "roar", element::NORMAL, 0, 30 };
@@ -77,7 +78,7 @@ namespace pokemon {
    &tackle,
    &tailwhip,
    nullptr,
-   nullptr,
+   &flamethrower,
    element::N_A,
    element::FIRE,
    5,
@@ -122,7 +123,7 @@ namespace pokemon {
    &tackle,
    &tailwhip,
    &fly,
-   nullptr,
+   &flamethrower,
    element::N_A,
    element::NORMAL,
    5,
@@ -166,12 +167,12 @@ namespace pokemon {
   "charizard",
   &tackle,
   &fly,
-  nullptr,
+  &flamethrower,
   nullptr,
   element::N_A,
   element::FIRE,
   5,
-  20,
+  120,
   120,
   0,
   false

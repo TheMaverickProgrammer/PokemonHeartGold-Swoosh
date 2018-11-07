@@ -6,11 +6,12 @@ struct particle {
   sf::Vector2f pos;
   sf::Vector2f speed;
   sf::Vector2f friction;
+  sf::Vector2f acceleration;
   double life;
   double lifetime;
 
   particle() {
-    pos = speed = sf::Vector2f(0.0f, 0.0f);
+    pos = speed = acceleration = sf::Vector2f(0.0f, 0.0f);
     life = lifetime = 1.0;
     friction = sf::Vector2f(1.0f, 1.0f);
   }
@@ -18,6 +19,7 @@ struct particle {
   particle(const particle& rhs) {
     sprite = rhs.sprite;
     pos = rhs.pos;
+    acceleration = rhs.acceleration;
     speed = rhs.speed;
     friction = rhs.friction;
     life = rhs.life;

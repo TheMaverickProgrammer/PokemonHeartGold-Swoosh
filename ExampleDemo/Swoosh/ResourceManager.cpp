@@ -23,6 +23,7 @@ ResourceManager::~ResourceManager()
   delete playerStatusTexture;
   delete enemyStatusTexture;
   delete particleTexture;
+  delete fireTexture;
   delete titleTexture;
   delete ddownTexture;
   delete aupTexture;
@@ -75,6 +76,7 @@ void ResourceManager::load(std::atomic<int>& progress) {
   playerStatusTexture = loadTexture(PLAYER_STATUS_PATH); progress++;
   enemyStatusTexture = loadTexture(ENEMY_STATUS_PATH); progress++;
   particleTexture = loadTexture(PARTICLE_PATH); progress++;
+  fireTexture = loadTexture(FIREBALL_PATH); progress++;
   titleTexture = loadTexture(TITLE_PATH); progress++;
   ddownTexture = loadTexture(DEFENSE_DOWN_PATH); progress++;
   aupTexture = loadTexture(ATTACK_UP_PATH); progress++;
