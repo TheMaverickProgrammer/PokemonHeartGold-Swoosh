@@ -247,7 +247,7 @@ private:
 
         this->ref->actions.add(new IdleAction(ref->playerSprite));
         this->ref->actions.add(new RoarAction(ref->wildSprite, &ref->resources.wildRoarBuffer, ref->sound, false));
-        this->ref->actions.add(new FaintAction(ref->wildSprite));
+        this->ref->actions.add(new FaintAction(ref->wildSprite, *ref->resources.faintBuffer, ref->sound));
         this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->wild.name + " fainted!"));
         this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
         GainXPAction* xpAction = new GainXPAction(ref->playerMonsters[0], ref->wild, *ref->resources.xpBuffer, ref->sound);
@@ -266,7 +266,7 @@ private:
 
         this->ref->actions.add(new IdleAction(ref->wildSprite));
         this->ref->actions.add(new RoarAction(ref->playerSprite, &ref->resources.playerRoarBuffer, ref->sound, false));
-        this->ref->actions.add(new FaintAction(ref->playerSprite));
+        this->ref->actions.add(new FaintAction(ref->playerSprite, *ref->resources.faintBuffer, ref->sound));
         this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->playerMonsters[0].name + " fainted!"));
         this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
 
@@ -733,12 +733,21 @@ public:
           isKeyDown = true;
           sound.setBuffer(*resources.selectBuffer);
           sound.play();
-        } // else ignore or play a buzzer sound
-      }
+        } // else play a buzzer sound
+        else {
+          isKeyDown = true;
+          sound.setBuffer(*resources.buzzerBuffer);
+          sound.play();
+        }
+      } // force player to release key to register as a press only on valid entries
       else if (canInteract && !sf::Keyboard::isKeyPressed(sf::Keyboard::Enter) && isKeyDown) {
-        isKeyDown = false; // force player to release key to press again
-        canInteract = false;
-        generateBattleActions(*choice);
+        isKeyDown = false; 
+
+        // We made a valid selection
+        if (choice != nullptr) {
+          canInteract = false;
+          generateBattleActions(*choice);
+        }
       }
     }
 

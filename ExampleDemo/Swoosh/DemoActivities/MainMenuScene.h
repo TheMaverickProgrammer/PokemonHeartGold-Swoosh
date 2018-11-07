@@ -96,7 +96,14 @@ public:
       getController().queuePop<segue<BlendFadeIn>>();
     }
 
-    shader.setUniform("amount", std::min(waitTimer.getElapsed().asSeconds()/4.0f,1.0f));
+    // we're coming back from overworld
+    if (!whiteFlash) {
+      shader.setUniform("amount", std::min(waitTimer.getElapsed().asSeconds() / 4.0f, 1.0f));
+    }
+    else // We just loaded the game. Stay grey.
+    {
+      shader.setUniform("amount", 1.0f);
+    }
 
   }
 

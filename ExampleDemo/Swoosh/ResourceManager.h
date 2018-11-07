@@ -44,6 +44,9 @@ public:
   sf::SoundBuffer *xpBuffer;
   sf::SoundBuffer *tailWhipBuffer;
   sf::SoundBuffer *flyBuffer;
+  sf::SoundBuffer *faintBuffer;
+  sf::SoundBuffer *flameBuffer;
+  sf::SoundBuffer *buzzerBuffer;
 
   sf::Font *menuFont;
 

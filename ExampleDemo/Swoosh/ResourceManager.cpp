@@ -38,11 +38,16 @@ ResourceManager::~ResourceManager()
   delete xpBuffer;
   delete tailWhipBuffer;
   delete flyBuffer;
+  delete faintBuffer;
+  delete flameBuffer;
+  delete buzzerBuffer;
 
   delete menuFont;
 }
 
 void ResourceManager::load(std::atomic<int>& progress) {
+  progress = 0;
+
   map.load(OVERWORLD_TMX_PATH); progress++;
   layerZero = new MapLayer(map, 0); progress++;
   layerOne = new MapLayer(map, 1); progress++;
@@ -58,6 +63,9 @@ void ResourceManager::load(std::atomic<int>& progress) {
   xpBuffer = loadSound(XP_SFX); progress++;
   tailWhipBuffer = loadSound(TAIL_WHIP_SFX); progress++;
   flyBuffer = loadSound(FLY_SFX); progress++;
+  faintBuffer = loadSound(FAINT_FX); progress++;
+  flameBuffer = loadSound(FLAME_FX); progress++;
+  buzzerBuffer = loadSound(BUZZER_FX); progress++;
 
   owPlayerTexture = loadTexture(PLAYER_OW_PATH); progress++;
   battleAreaTexture = loadTexture(GRASS_AREA); progress++;

@@ -32,6 +32,9 @@ RESOURCE THUNDER_SFX = "resources/sfx/thunder_bolt.wav";
 RESOURCE HIT_WEAK_SFX = "resources/sfx/hit_weak.wav";
 RESOURCE HIT_NORMAL_SFX = "resources/sfx/hit_normal.wav";
 RESOURCE HIT_SUPER_SFX = "resources/sfx/hit_super.wav";
+RESOURCE BUZZER_FX = "resources/sfx/buzzer.wav";
+RESOURCE FAINT_FX = "resources/sfx/faint.wav";
+RESOURCE FLAME_FX = "resources/sfx/flamethrower.wav";
 
 RESOURCE GRASS_AREA   = "resources/battle/area.png";
 RESOURCE GRASS_PAD_BG = "resources/battle/grass_battle_bg.png";

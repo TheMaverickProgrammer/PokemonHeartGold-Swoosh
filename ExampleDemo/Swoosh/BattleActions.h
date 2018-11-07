@@ -144,18 +144,31 @@ public:
 class FaintAction : public BlockingActionItem {
 private:
   sf::Sprite& ref;
+  sf::SoundBuffer &buffer;
+  sf::Sound& sound;
+
   double total;
   sf::IntRect original;
+
+  bool doOnce;
 public:
-  FaintAction(sf::Sprite& ref) : ref(ref), BlockingActionItem() {
+  FaintAction(sf::Sprite& ref, sf::SoundBuffer& buffer, sf::Sound& sound) 
+    : ref(ref), buffer(buffer), sound(sound), BlockingActionItem() {
     total = 0;
     original = ref.getTextureRect();
+    doOnce = false;
   }
 
   ~FaintAction() {
   }
 
   virtual void update(double elapsed) {
+    if (!doOnce) {
+      sound.setBuffer(buffer);
+      sound.play();
+      doOnce = true;
+    }
+
     total += elapsed;
     double alpha = 1.0 - ease::linear(total, 0.25, 1.0);
 
