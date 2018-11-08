@@ -12,6 +12,8 @@
 
 #include <Segues\Checkerboard.h>
 #include <Segues\WhiteWashFade.h>
+#include "../CustomPokemonSegues/GreyScalePatternPokemonSegue.h"
+#include "../CustomPokemonSegues/DisplacementPokemonSegue.h"
 
 #include <iostream>
 #include <assert.h>
@@ -133,7 +135,17 @@ public:
         int random_battle = rand() % 100;
 
         if (random_battle == 99) {
-          getController().push<segue<Checkerboard>::to<BattleScene>>(resources, playerMonsters);
+          int random_segue = rand() % 2;
+
+          if (random_segue == 0) {
+            getController().push<segue<PokeBallCircle, sec<3>>::to<BattleScene>>(resources, playerMonsters);
+          }
+          else if (random_segue == 1) {
+            getController().push<segue<PokemonRetroBlit, sec<3>>::to<BattleScene>>(resources, playerMonsters);
+          }
+          else {
+            getController().push<segue<DisplacementPokemonSegue, sec<3>>::to<BattleScene>>(resources, playerMonsters);
+          }
         }
       }
     }

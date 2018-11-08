@@ -45,6 +45,10 @@ RESOURCE ATTACK_UP_PATH    = "resources/battle/effects/aup.png";
 RESOURCE PARTICLE_PATH = "resources/battle/effects/pokeball.png";
 RESOURCE FIREBALL_PATH = "resources/battle/effects/fire.png";
 
+RESOURCE POKEBALL_CIRCLE_MASK_PATH = "resources/segue/pokeball_mask.png";
+RESOURCE RETRO_SNAKE_MASK_PATH = "resources/segue/snake_mask.png";
+RESOURCE DISPLACEMENT_PATTERN_PATH = "resources/segue/displacement.png";
+
 RESOURCE TEXTBOX_PATH = "resources/textbox.png";
 RESOURCE GAME_FONT = "resources/pokemon.ttf";
 RESOURCE ENEMY_STATUS_PATH  = "resources/battle/enemy_status.png";

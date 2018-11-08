@@ -222,12 +222,23 @@ c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\mai
               T=float
           ]
 c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\mainmenuscene.h(150): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\demoscene.h(55): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\custompokemonsegues\displacementpokemonsegue.h(53): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
           with
           [
               T=unsigned int
           ]
-c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\demoscene.h(141): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+          and
+          [
+              T=float
+          ]
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\custompokemonsegues\displacementpokemonsegue.h(54): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\custompokemonsegues\displacementpokemonsegue.h(112): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\demoscene.h(57): warning C4244: 'argument': conversion from 'T' to 'float', possible loss of data
+          with
+          [
+              T=unsigned int
+          ]
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\demoscene.h(153): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 c:\users\bountyhunter\code\heartgoldswoosh\src\swoosh\ease.h(8): warning C4244: 'return': conversion from 'double' to 'T', possible loss of data
           with
           [
@@ -248,4 +259,46 @@ c:\users\bountyhunter\code\heartgoldswoosh\src\swoosh\ease.h(17): warning C4244:
           [
               T=float
           ]
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\custompokemonsegues\greyscalepatternpokemonsegue.h(127): warning C4244: '=': conversion from 'double' to 'int', possible loss of data
+  c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\custompokemonsegues\greyscalepatternpokemonsegue.h(112): note: while compiling class template member function 'GreyScalePatternPokemonSegue<RETRO_BLIT>::GreyScalePatternPokemonSegue(sf::Time,swoosh::Activity *,swoosh::Activity *)'
+  c:\users\bountyhunter\code\heartgoldswoosh\src\swoosh\activitycontroller.h(99): note: see reference to function template instantiation 'GreyScalePatternPokemonSegue<RETRO_BLIT>::GreyScalePatternPokemonSegue(sf::Time,swoosh::Activity *,swoosh::Activity *)' being compiled
+  c:\users\bountyhunter\code\heartgoldswoosh\src\swoosh\activitycontroller.h(93): note: see reference to class template instantiation 'GreyScalePatternPokemonSegue<RETRO_BLIT>' being compiled
+  c:\users\bountyhunter\code\heartgoldswoosh\src\swoosh\activitycontroller.h(186): note: see reference to function template instantiation 'void swoosh::ActivityController::segue<PokemonRetroBlit,swoosh::intent::seconds<3>>::to<BattleScene>::delegateActivityPush<ResourceManager&,std::vector<pokemon::monster,std::allocator<_Ty>>&>(swoosh::ActivityController &,ResourceManager &,std::vector<_Ty,std::allocator<_Ty>> &)' being compiled
+          with
+          [
+              _Ty=pokemon::monster
+          ]
+  c:\users\bountyhunter\code\heartgoldswoosh\src\swoosh\activitycontroller.h(190): note: see reference to function template instantiation 'void swoosh::ActivityController::segue<PokemonRetroBlit,swoosh::intent::seconds<3>>::to<BattleScene>::delegateActivityPush<ResourceManager&,std::vector<pokemon::monster,std::allocator<_Ty>>&>(swoosh::ActivityController &,ResourceManager &,std::vector<_Ty,std::allocator<_Ty>> &)' being compiled
+          with
+          [
+              _Ty=pokemon::monster
+          ]
+  c:\users\bountyhunter\code\heartgoldswoosh\src\swoosh\activitycontroller.h(215): note: see reference to function template instantiation 'swoosh::ActivityController::ResolvePushSegueIntent<T,false>::ResolvePushSegueIntent<ResourceManager&,std::vector<pokemon::monster,std::allocator<_Ty>>&>(swoosh::ActivityController &,ResourceManager &,std::vector<_Ty,std::allocator<_Ty>> &)' being compiled
+          with
+          [
+              T=swoosh::ActivityController::segue<PokemonRetroBlit,swoosh::intent::seconds<3>>::to<BattleScene>,
+              _Ty=pokemon::monster
+          ]
+  c:\users\bountyhunter\code\heartgoldswoosh\src\swoosh\activitycontroller.h(216): note: see reference to function template instantiation 'swoosh::ActivityController::ResolvePushSegueIntent<T,false>::ResolvePushSegueIntent<ResourceManager&,std::vector<pokemon::monster,std::allocator<_Ty>>&>(swoosh::ActivityController &,ResourceManager &,std::vector<_Ty,std::allocator<_Ty>> &)' being compiled
+          with
+          [
+              T=swoosh::ActivityController::segue<PokemonRetroBlit,swoosh::intent::seconds<3>>::to<BattleScene>,
+              _Ty=pokemon::monster
+          ]
+  c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\demoactivities\demoscene.h(144): note: see reference to function template instantiation 'void swoosh::ActivityController::push<swoosh::ActivityController::segue<PokemonRetroBlit,swoosh::intent::seconds<3>>::to<BattleScene>,ResourceManager&,std::vector<pokemon::monster,std::allocator<_Ty>>&>(ResourceManager &,std::vector<_Ty,std::allocator<_Ty>> &)' being compiled
+          with
+          [
+              _Ty=pokemon::monster
+          ]
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\custompokemonsegues\greyscalepatternpokemonsegue.h(66): warning C4244: 'argument': conversion from 'T' to 'T', possible loss of data
+          with
+          [
+              T=unsigned int
+          ]
+          and
+          [
+              T=float
+          ]
+  c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\custompokemonsegues\greyscalepatternpokemonsegue.h(51): note: while compiling class template member function 'void GreyScalePatternPokemonSegue<RETRO_BLIT>::onDraw(sf::RenderTexture &)'
+c:\users\bountyhunter\code\heartgoldswoosh\exampledemo\swoosh\custompokemonsegues\greyscalepatternpokemonsegue.h(67): warning C4244: 'argument': conversion from 'double' to 'sf::Uint8', possible loss of data
   Swoosh.vcxproj -> C:\Users\Bountyhunter\Code\HeartGoldSwoosh\ExampleDemo\x64\Debug\Swoosh.exe

@@ -37,6 +37,12 @@
     <Filter Include="Source Files\Demo\Utils\Data">
       <UniqueIdentifier>{12e1994d-a563-44f3-abf0-aac9cc8b7a0e}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Demo\Segues\Swoosh">
+      <UniqueIdentifier>{77f125c1-a058-4072-897f-d3171af134d9}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Demo\Segues\CustomPokemonSegues">
+      <UniqueIdentifier>{f94666ea-cbc1-4cc0-9e2a-15eb1a46685a}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -51,44 +57,8 @@
     <ClInclude Include="DemoActivities\MainMenuScene.h">
       <Filter>Source Files\Demo\Activities</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\Segues\BlendFadeIn.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Segues\Checkerboard.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Segues\HorizontalSlice.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Segues\PageTurn.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Segues\SlideIn.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Segues\VerticalSlice.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Segues\WhiteWashFade.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Segues\ZoomIn.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Segues\ZoomOut.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Segues\HorizontalOpen.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Segues\VerticalOpen.h">
-      <Filter>Source Files\Demo\Segues</Filter>
-    </ClInclude>
     <ClInclude Include="DemoActivities\BattleScene.h">
       <Filter>Source Files\Demo\Activities</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\Segues\BlackWashFade.h">
-      <Filter>Source Files\Demo\Segues</Filter>
     </ClInclude>
     <ClInclude Include="ActionList.h">
       <Filter>Source Files\Demo\Utils</Filter>
@@ -110,6 +80,33 @@
     </ClInclude>
     <ClInclude Include="BattleActions.h">
       <Filter>Source Files\Demo\Utils\Data</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\WhiteWashFade.h">
+      <Filter>Source Files\Demo\Segues\Swoosh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\BlackWashFade.h">
+      <Filter>Source Files\Demo\Segues\Swoosh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\BlendFadeIn.h">
+      <Filter>Source Files\Demo\Segues\Swoosh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\Checkerboard.h">
+      <Filter>Source Files\Demo\Segues\Swoosh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\HorizontalSlice.h">
+      <Filter>Source Files\Demo\Segues\Swoosh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\SlideIn.h">
+      <Filter>Source Files\Demo\Segues\Swoosh</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\Segues\VerticalSlice.h">
+      <Filter>Source Files\Demo\Segues\Swoosh</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomPokemonSegues\GreyScalePatternPokemonSegue.h">
+      <Filter>Source Files\Demo\Segues\CustomPokemonSegues</Filter>
+    </ClInclude>
+    <ClInclude Include="CustomPokemonSegues\DisplacementPokemonSegue.h">
+      <Filter>Source Files\Demo\Segues\CustomPokemonSegues</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
