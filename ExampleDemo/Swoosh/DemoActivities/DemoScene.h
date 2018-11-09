@@ -106,8 +106,8 @@ public:
           if (spawn_tile == 1127) {
             int random_battle = rand() % 100;
 
-            if (random_battle >= 59) {
-              int random_segue = 2;
+            if (random_battle >= 79) {
+              int random_segue = rand() % 2;
 
               if (random_segue == 0) {
                 getController().push<segue<PokeBallCircle, sec<3>>::to<BattleScene>>(resources, playerMonsters);
@@ -127,7 +127,7 @@ public:
           // Check the collision layer....
           std::uint32_t tile = resources.layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y - 16);
           if (tile != 1132) {
-            moveSpacesLeft = 16;
+            moveSpacesLeft = 8;
           }
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
@@ -136,7 +136,7 @@ public:
           // Check the collision layer....
           std::uint32_t tile = resources.layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y + 16);
           if (tile != 1132) {
-            moveSpacesLeft = 16;
+            moveSpacesLeft = 8;
           }
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
@@ -145,7 +145,7 @@ public:
           // Check the collision layer....
           std::uint32_t tile = resources.layerTwo->tileIDAtCoord(view.getCenter().x - 16, view.getCenter().y);
           if (tile != 1132) {
-            moveSpacesLeft = 16;
+            moveSpacesLeft = 8;
           }
         }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
@@ -154,7 +154,7 @@ public:
           // Check the collision layer....
           std::uint32_t tile = resources.layerTwo->tileIDAtCoord(view.getCenter().x + 16, view.getCenter().y);
           if (tile != 1132) {
-            moveSpacesLeft = 16;
+            moveSpacesLeft = 8;
           }
         }
 
@@ -164,16 +164,16 @@ public:
       }
       else {
         if  (playerDirection == Direction::UP) {
-          view.setCenter(view.getCenter() - sf::Vector2f(0.0f, 1.0f));
+          view.setCenter(view.getCenter() - sf::Vector2f(0.0f, 2.0f));
         }
         else if (playerDirection == Direction::DOWN) {
-          view.setCenter(view.getCenter() + sf::Vector2f(0.0f, 1.0f));
+          view.setCenter(view.getCenter() + sf::Vector2f(0.0f, 2.0f));
         }
         else if (playerDirection == Direction::LEFT) {
-          view.setCenter(view.getCenter() - sf::Vector2f(1.0f, 0.0f));
+          view.setCenter(view.getCenter() - sf::Vector2f(2.0f, 0.0f));
         }
         else if (playerDirection == Direction::RIGHT) {
-          view.setCenter(view.getCenter() + sf::Vector2f(1.0f, 0.0f));
+          view.setCenter(view.getCenter() + sf::Vector2f(2.0f, 0.0f));
         }
 
         isWalking = true;

@@ -254,6 +254,7 @@ private:
         this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
         GainXPStep* xpAction = new GainXPStep(ref->output, sf::Keyboard::Enter, ref->playerMonsters[0], ref->wild, *ref->resources.selectBuffer, *ref->resources.xpBuffer, *ref->resources.levelupBuffer, ref->sound, ref->actions);
         this->ref->actions.add(xpAction);
+        this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->playerMonsters[0].name + " gained " + std::to_string(xpAction->getXP()) + " XP!"));
         this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
 
         leaveScene = true;
@@ -444,9 +445,8 @@ public:
       actions.add(new ChangeText(output, std::string(first->name) + " is flying!"));
       actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
       actions.add(new FlyAction(*firstSprite, *first, *resources.flyBuffer, sound));
-      actions.add(new ChangeText(output, std::string(first->name) + " attacked\nform above!"));
+      actions.add(new ChangeText(output, std::string(first->name) + " attacked\nfrom above!"));
       actions.add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
-      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
       actions.add(new SignalCheckHP(this));
       actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
     }
@@ -584,7 +584,7 @@ public:
 
       break;
     }
-    
+
     setOrigin(wildSprite, 0.5, 1.0);
     return wild;
   }
@@ -635,6 +635,8 @@ public:
 
       particle p;
       p.sprite = sf::Sprite(*texture);
+      setOrigin(p.sprite, 0.5, 0.5);
+
       p.pos = position;
       p.speed = sf::Vector2f(randSpeedX, -randSpeedY);
       p.friction = sf::Vector2f(0.46f, 0.46f);
@@ -652,6 +654,7 @@ public:
     for (int i = numPerFrame; i > 0; i--) {
       particle p;
       p.sprite = sf::Sprite(*texture);
+      setOrigin(p.sprite, 0.5, 0.5);
       p.pos = position;
       p.speed = speed;
       p.acceleration = accel;
@@ -721,6 +724,8 @@ public:
     }
 
     if (canInteract) {
+      output = ""; // clear our output text otherwise it shows up briefly
+
       if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
         rowSelect--;
       }

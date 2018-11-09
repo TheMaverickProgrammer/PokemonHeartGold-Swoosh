@@ -422,6 +422,7 @@ private:
   sf::Sound& sound;
   std::string& output;
   int xp;
+  int gainedxp;
   bool playOnce;
 public:
 
@@ -431,7 +432,7 @@ public:
     defeated(defeated), actions(actions), BlockingActionItem() {
     // In a real game, increase xp by level and other factors
     // In ours, guess the level by the difference in max hp. 
-    this->xp = (ref.xp + defeated.xp + std::ceil((defeated.xp*0.5*(defeated.level / ref.level)))) / 2.0;
+    this->xp = this->gainedxp = std::ceil((defeated.xp*(defeated.level / ref.level))) / 2.0;
     playOnce = false;
   }
 

@@ -29,14 +29,16 @@ void FlamethrowerAction::update(double elapsed) {
     ref.setPosition(original.x + offsetx, original.y);
 
     if (total > 0.10) {
-      // If facing back, raise the origin of flame
+      // if wild, set the origin of flame offset by the sprite's height
+      
       sf::Vector2f position = ref.getPosition();
-      if (facing == 0) {
-        position = sf::Vector2f(ref.getPosition().x + 20, ref.getPosition().y - 50);
-      }
+      position = sf::Vector2f(ref.getPosition().x + 20, ref.getPosition().y - 50);
+
+      if (facing) { position.x -= 40.0f; position.y += 50.0f - ref.getGlobalBounds().height/2.0; }
+      
 
       // the positions of the sprites do not align with the center due to orings. offset the target pos and add some jitter.
-      sf::Vector2f direction = game::direction<float>(target.getPosition() - sf::Vector2f(rand()%50 * (facing? -1 : 1), facing? 70 : 90), position);
+      sf::Vector2f direction = game::direction<float>(target.getPosition() - sf::Vector2f(rand()%50 * (facing? -1 : 1), facing? 20 : 90), position);
       sf::Vector2f speed = sf::Vector2f(direction.x * 600, direction.y * 200);
       sf::Vector2f friction = sf::Vector2f(0.80f, 1.0f); //  make the fire stop short
       sf::Vector2f accel = sf::Vector2f(0, -12.0f); // smoke travels up
