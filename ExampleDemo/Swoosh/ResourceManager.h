@@ -48,6 +48,7 @@ public:
   sf::SoundBuffer *faintBuffer;
   sf::SoundBuffer *flameBuffer;
   sf::SoundBuffer *buzzerBuffer;
+  sf::SoundBuffer *levelupBuffer;
 
   sf::Font *menuFont;
 

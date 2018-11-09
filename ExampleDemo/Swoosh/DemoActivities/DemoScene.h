@@ -43,11 +43,15 @@ private:
   Timer walkAnim;
   Direction playerDirection;
   bool inFocus;
+  bool isWalking;
+  int moveSpacesLeft;
 
   std::vector<pokemon::monster> playerMonsters;
 public:
   DemoScene(ActivityController& controller, ResourceManager &resources) : resources(resources), Activity(controller) { 
     inFocus = false;
+    isWalking = false;
+    moveSpacesLeft = 0;
     townMusic.openFromFile(TOWN_MUSIC_PATH);
 
     player = sf::Sprite(*resources.owPlayerTexture);
@@ -62,7 +66,7 @@ public:
   void restart() {
     inFocus = false;
     view = sf::View(sf::FloatRect(20.0f, 20.0f, 400.0f, 300.0f));
-    view.setCenter(37 * 16, 45 * 16);
+    view.setCenter(37 * 16 + 8, 45 * 16 + 8); // place on tile row 37 col 45. +8 to center sprite in middle of tile.
     playerDirection = Direction::DOWN;
 
     playerMonsters.clear();
@@ -86,67 +90,94 @@ public:
         getController().push<segue<WhiteWashFade>::to<MainMenuScene>>(resources, overworldSnapshot, false); // Pass into next scene
       }
 
-      bool isWalking = false;
-
-      walkAnim.start();
       sf::View before = view;
 
-      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
-        playerDirection = Direction::UP;
-        view.setCenter(view.getCenter() - sf::Vector2f(0.0f, 2.0f));
-        isWalking = true;
-      } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
-        playerDirection = Direction::DOWN;
-        view.setCenter(view.getCenter() + sf::Vector2f(0.0f, 2.0f));
-        isWalking = true;
-      } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
-        playerDirection = Direction::LEFT;
-        view.setCenter(view.getCenter() - sf::Vector2f(2.0f, 0.0f));
-        isWalking = true;
-      } else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
-        playerDirection = Direction::RIGHT;
-        view.setCenter(view.getCenter() + sf::Vector2f(2.0f, 0.0f));
-        isWalking = true;
-      }
-      else {
-        // Do not update animation
-        walkAnim.pause();
-      }
-      
-      // Check the collision layer....
-      // Down, left, up, right
-      std::uint32_t tile[] = {
-                      resources.layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y+7),
-                      resources.layerTwo->tileIDAtCoord(view.getCenter().x-7, view.getCenter().y),
-                      resources.layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y-7),
-                      resources.layerTwo->tileIDAtCoord(view.getCenter().x+7, view.getCenter().y)
-      };
+      if (moveSpacesLeft == 0) {
+        if (isWalking == true) {
+          isWalking = false;
 
-      if (tile[0] == 1132 || tile[1] == 1132 || tile[2] == 1132 || tile[3] == 1132) {
-        view = before;
-        isWalking = false; // Do not flag for battles if we haven't moved
-      }
+          // Do not update animation
+          walkAnim.pause();
 
-      // Check the battle spawn layer....
-      // Down, left, up, right
-      std::uint32_t spawn_tile = resources.layerThree->tileIDAtCoord(view.getCenter().x, view.getCenter().y);
+          // Check the battle spawn layer....
+          // Down, left, up, right
+          std::uint32_t spawn_tile = resources.layerThree->tileIDAtCoord(view.getCenter().x, view.getCenter().y);
 
-      if (spawn_tile == 1127 && isWalking) {
-        int random_battle = rand() % 100;
+          if (spawn_tile == 1127) {
+            int random_battle = rand() % 100;
 
-        if (random_battle == 99) {
-          int random_segue = rand() % 2;
+            if (random_battle >= 59) {
+              int random_segue = 2;
 
-          if (random_segue == 0) {
-            getController().push<segue<PokeBallCircle, sec<3>>::to<BattleScene>>(resources, playerMonsters);
+              if (random_segue == 0) {
+                getController().push<segue<PokeBallCircle, sec<3>>::to<BattleScene>>(resources, playerMonsters);
+              }
+              else if (random_segue == 1) {
+                getController().push<segue<PokemonRetroBlit, sec<3>>::to<BattleScene>>(resources, playerMonsters);
+              }
+              else {
+                getController().push<segue<DisplacementPokemonSegue, sec<3>>::to<BattleScene>>(resources, playerMonsters);
+              }
+            }
           }
-          else if (random_segue == 1) {
-            getController().push<segue<PokemonRetroBlit, sec<3>>::to<BattleScene>>(resources, playerMonsters);
-          }
-          else {
-            getController().push<segue<DisplacementPokemonSegue, sec<3>>::to<BattleScene>>(resources, playerMonsters);
+        } 
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
+          playerDirection = Direction::UP;
+
+          // Check the collision layer....
+          std::uint32_t tile = resources.layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y - 16);
+          if (tile != 1132) {
+            moveSpacesLeft = 16;
           }
         }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Down)) {
+          playerDirection = Direction::DOWN;
+
+          // Check the collision layer....
+          std::uint32_t tile = resources.layerTwo->tileIDAtCoord(view.getCenter().x, view.getCenter().y + 16);
+          if (tile != 1132) {
+            moveSpacesLeft = 16;
+          }
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Left)) {
+          playerDirection = Direction::LEFT;
+
+          // Check the collision layer....
+          std::uint32_t tile = resources.layerTwo->tileIDAtCoord(view.getCenter().x - 16, view.getCenter().y);
+          if (tile != 1132) {
+            moveSpacesLeft = 16;
+          }
+        }
+        else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Right)) {
+          playerDirection = Direction::RIGHT;
+
+          // Check the collision layer....
+          std::uint32_t tile = resources.layerTwo->tileIDAtCoord(view.getCenter().x + 16, view.getCenter().y);
+          if (tile != 1132) {
+            moveSpacesLeft = 16;
+          }
+        }
+
+        if (moveSpacesLeft > 0) {
+          walkAnim.start();
+        }
+      }
+      else {
+        if  (playerDirection == Direction::UP) {
+          view.setCenter(view.getCenter() - sf::Vector2f(0.0f, 1.0f));
+        }
+        else if (playerDirection == Direction::DOWN) {
+          view.setCenter(view.getCenter() + sf::Vector2f(0.0f, 1.0f));
+        }
+        else if (playerDirection == Direction::LEFT) {
+          view.setCenter(view.getCenter() - sf::Vector2f(1.0f, 0.0f));
+        }
+        else if (playerDirection == Direction::RIGHT) {
+          view.setCenter(view.getCenter() + sf::Vector2f(1.0f, 0.0f));
+        }
+
+        isWalking = true;
+        moveSpacesLeft--;
       }
     }
     else {

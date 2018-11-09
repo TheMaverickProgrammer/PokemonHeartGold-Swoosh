@@ -42,6 +42,7 @@ ResourceManager::~ResourceManager()
   delete faintBuffer;
   delete flameBuffer;
   delete buzzerBuffer;
+  delete levelupBuffer;
 
   delete menuFont;
 }
@@ -67,6 +68,7 @@ void ResourceManager::load(std::atomic<int>& progress) {
   faintBuffer = loadSound(FAINT_FX); progress++;
   flameBuffer = loadSound(FLAME_FX); progress++;
   buzzerBuffer = loadSound(BUZZER_FX); progress++;
+  levelupBuffer = loadSound(LEVEL_UP_FX); progress++;
 
   owPlayerTexture = loadTexture(PLAYER_OW_PATH); progress++;
   battleAreaTexture = loadTexture(GRASS_AREA); progress++;

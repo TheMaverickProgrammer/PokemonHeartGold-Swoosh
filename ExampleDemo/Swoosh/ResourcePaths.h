@@ -3,9 +3,6 @@
 #define RESOURCE_ARR static const char*
 
 RESOURCE TITLE_PATH         = "resources/title.png";
-RESOURCE THEME_MUSIC_PATH   = "resources/music/title.ogg";
-RESOURCE BATTLE_MUSIC_PATH  = "resources/music/battle.ogg";
-RESOURCE TOWN_MUSIC_PATH    = "resources/music/town.ogg";
 RESOURCE OVERWORLD_TMX_PATH = "resources/demo_overworld.tmx";
 RESOURCE PLAYER_OW_PATH     = "resources/player.png";
 
@@ -22,6 +19,11 @@ RESOURCE_ARR PONYTA_PATH[]   = { "resources/battle/pokemon/back/ponyta.png", "re
 RESOURCE_ARR CUBONE_PATH[]   = { "resources/battle/pokemon/back/cubone.png", "resources/battle/pokemon/front/cubone.png" , "resources/sfx/cries/cubone.ogg" };
 RESOURCE_ARR ODISH_PATH[]    = { "resources/battle/pokemon/back/odish.png", "resources/battle/pokemon/front/odish.png" , "resources/sfx/cries/odish.ogg" };
 
+RESOURCE THEME_MUSIC_PATH = "resources/music/title.ogg";
+RESOURCE BATTLE_MUSIC_PATH = "resources/music/battle.ogg";
+RESOURCE TOWN_MUSIC_PATH = "resources/music/town.ogg";
+RESOURCE VICTORY_MUSIC_PATH = "resources/music/victory.ogg";
+
 RESOURCE STATS_LOWER_SFX = "resources/sfx/stats_lower.wav";
 RESOURCE STATS_RISE_SFX  = "resources/sfx/stats_rise.wav";
 RESOURCE FLY_SFX = "resources/sfx/fly.wav";
@@ -35,6 +37,7 @@ RESOURCE HIT_SUPER_SFX = "resources/sfx/hit_super.wav";
 RESOURCE BUZZER_FX = "resources/sfx/buzzer.wav";
 RESOURCE FAINT_FX = "resources/sfx/faint.wav";
 RESOURCE FLAME_FX = "resources/sfx/flamethrower.wav";
+RESOURCE LEVEL_UP_FX = "resources/sfx/levelup.wav";
 
 RESOURCE GRASS_AREA   = "resources/battle/area.png";
 RESOURCE GRASS_PAD_BG = "resources/battle/grass_battle_bg.png";

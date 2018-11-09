@@ -57,6 +57,24 @@ public:
   }
 };
 
+class ChangeMusic : public ActionItem {
+private:
+  sf::Music& music;
+  std::string path;
+public:
+  ChangeMusic(sf::Music& music, std::string path) : music(music), path(path) {
+  }
+
+  virtual void update(double elapsed) {
+    music.openFromFile(path);
+    music.play();
+    markDone();
+  }
+
+  virtual void draw(sf::RenderTexture& surface) {
+  }
+};
+
 class TakeDamage : public BlockingActionItem {
 private:
   pokemon::monster& monster;
@@ -89,57 +107,6 @@ public:
       monster.hp -= 1;
     }
     else {
-      markDone();
-    }
-  }
-
-  virtual void draw(sf::RenderTexture& surface) {
-  }
-};
-
-class GainXPAction : public BlockingActionItem {
-private:
-  pokemon::monster& monster;
-  pokemon::monster& defeated;
-  sf::SoundBuffer& buffer;
-  sf::Sound& sound;
-  int xp;
-  bool playOnce;
-public:
-
-  GainXPAction(pokemon::monster& ref, pokemon::monster& defeated, sf::SoundBuffer& buffer, sf::Sound& sound) : buffer(buffer), sound(sound), monster(ref), defeated(defeated), BlockingActionItem() {
-    // In a real game, increase xp by level and other factors
-    // In ours, guess the level by the difference in max hp. 
-    this->xp = (ref.xp + defeated.xp + std::ceil((defeated.xp*0.5*(defeated.level / ref.level))))/2.0;
-    playOnce = false;
-  }
-
-  ~GainXPAction() {
-    monster.xp = this->xp;
-  }
-
-  const int getXP() const { return this->xp; }
-
-  virtual void update(double elapsed) {
-    if (!playOnce) {
-      playOnce = true;
-      sound.setBuffer(buffer);
-      sound.play();
-    }
-
-    if (this->xp > 0) {
-      monster.xp += 1;
-      this->xp--;
-
-      if (monster.xp == 100) {
-        monster.xp = 0;
-        monster.level++;
-        monster.maxhp += (int)(monster.maxhp * 0.10);
-        monster.hp = monster.maxhp;
-      }
-    }
-    else {
-      sound.stop(); // interupt
       markDone();
     }
   }
@@ -435,6 +402,78 @@ public:
       sound.setBuffer(buffer);
       sound.play();
       isPressed = true;
+    }
+  }
+
+  virtual void draw(sf::RenderTexture& surface) {
+  }
+};
+
+
+class GainXPStep : public BlockingActionItem {
+private:
+  pokemon::monster& monster;
+  pokemon::monster& defeated;
+  sf::SoundBuffer& buttonBuffer;
+  sf::SoundBuffer& buffer;
+  sf::SoundBuffer& levelupBuffer;
+  ActionList& actions;
+  sf::Keyboard::Key button;
+  sf::Sound& sound;
+  std::string& output;
+  int xp;
+  bool playOnce;
+public:
+
+  GainXPStep(std::string& output, sf::Keyboard::Key button, pokemon::monster& ref, pokemon::monster& defeated,
+    sf::SoundBuffer& buttonBuffer, sf::SoundBuffer& buffer, sf::SoundBuffer& levelupBuffer, sf::Sound& sound, ActionList& actions)
+    : output(output), button(button), buttonBuffer(buttonBuffer), buffer(buffer), levelupBuffer(levelupBuffer), sound(sound), monster(ref),
+    defeated(defeated), actions(actions), BlockingActionItem() {
+    // In a real game, increase xp by level and other factors
+    // In ours, guess the level by the difference in max hp. 
+    this->xp = (ref.xp + defeated.xp + std::ceil((defeated.xp*0.5*(defeated.level / ref.level)))) / 2.0;
+    playOnce = false;
+  }
+
+  ~GainXPStep() {
+    monster.xp = this->xp;
+  }
+
+  void overwriteXP(int xp) { this->xp = xp; }
+
+  const int getXP() const { return this->xp; }
+
+  virtual void update(double elapsed) {
+    if (!playOnce) {
+      playOnce = true;
+      sound.setBuffer(buffer);
+      sound.play();
+    }
+
+    if (this->xp > 0) {
+      monster.xp += 1;
+      this->xp--;
+
+      if (monster.xp == 100) {
+        monster.xp = 0;
+        monster.level++;
+        monster.maxhp += (int)(monster.maxhp * 0.10);
+        monster.hp = monster.maxhp;
+        sound.stop(); // interupt
+        sound.setBuffer(levelupBuffer);
+        sound.play();
+        markDone();
+
+        actions.insert(getIndex() + 1, new ChangeText(output, std::string() + monster.name + " leveled up!"));
+        actions.insert(getIndex() + 2, new WaitForButtonPressAction(button, buttonBuffer, sound));
+        GainXPStep* xpAction = new GainXPStep(output, button, monster, defeated, buttonBuffer, buffer, levelupBuffer, sound, actions);
+        xpAction->overwriteXP(this->xp);
+        actions.insert(getIndex() + 3, xpAction);
+      }
+    }
+    else {
+      sound.stop(); // interupt
+      markDone();
     }
   }
 

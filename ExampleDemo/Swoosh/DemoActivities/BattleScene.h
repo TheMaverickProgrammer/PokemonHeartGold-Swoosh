@@ -250,10 +250,10 @@ private:
         this->ref->actions.add(new RoarAction(ref->wildSprite, &ref->resources.wildRoarBuffer, ref->sound, false));
         this->ref->actions.add(new FaintAction(ref->wildSprite, *ref->resources.faintBuffer, ref->sound));
         this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->wild.name + " fainted!"));
+        this->ref->actions.add(new ChangeMusic(ref->battleMusic, VICTORY_MUSIC_PATH));
         this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
-        GainXPAction* xpAction = new GainXPAction(ref->playerMonsters[0], ref->wild, *ref->resources.xpBuffer, ref->sound);
+        GainXPStep* xpAction = new GainXPStep(ref->output, sf::Keyboard::Enter, ref->playerMonsters[0], ref->wild, *ref->resources.selectBuffer, *ref->resources.xpBuffer, *ref->resources.levelupBuffer, ref->sound, ref->actions);
         this->ref->actions.add(xpAction);
-        this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->playerMonsters[0].name + " gained\n" + std::to_string(xpAction->getXP()) + " XP!"));
         this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
 
         leaveScene = true;
