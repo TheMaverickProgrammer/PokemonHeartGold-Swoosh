@@ -9,11 +9,13 @@
 #include <Segues\WhiteWashFade.h>
 #include <Segues\BlackWashFade.h>
 
-#include "ResourceManager.h"
-#include "Particle.h"
-#include "Pokemon.h"
-#include "ActionList.h"
-#include "BattleActions.h"
+#include "../ResourceManager.h"
+#include "../Particle.h"
+#include "../Pokemon.h"
+#include "../Shaders.h"
+
+#include "../ActionList.h"
+#include "../BattleActions.h"
 
 #include <iostream>
 
@@ -21,78 +23,12 @@ using namespace swoosh;
 using namespace swoosh::intent;
 using namespace swoosh::game;
 
-static auto MONOTONE_SHADER = GLSL
-(
-  110,
-  uniform sampler2D texture;
-  uniform float amount;
-
-  void main()
-  {
-    vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
-    float avg = (pixel.r + pixel.g + pixel.b) / 3.0;
-    pixel = mix(pixel, vec4(avg, avg, avg, pixel.a), amount);
-    gl_FragColor = gl_Color * pixel;
-  }
-);
-
-static auto STATUS_BAR_SHADER = GLSL
-(
-  110,
-  uniform sampler2D texture;
-  uniform float hp;
-  uniform float xp;
-
-  void main()
-  {
-    // We encode darkened pixels in the alpha channel
-    vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
-
-    // hp is the red color coded pixels in the sample
-    if (pixel.g == 0.0 && pixel.b == 0.0) {
-      float normal = (hp*137.0) + (1.0 - hp)*255.0;
-      normal = normal / 255.0;
-
-      if (pixel.r > normal) {
-        pixel = vec4(0.0, 1.0*pixel.a, 0.0, 1.0);
-      }
-      else {
-        pixel = vec4(0.5*pixel.a, 0.5*pixel.a, 0.5*pixel.a, 1.0);
-      }
-    }  else if (pixel.r == 0.0 && pixel.g == 0.0) {
-      // xp is the blue color coded pixels in the sample
-
-      float normal = (xp*12.0) + (1.0 - xp)*255.0;
-      normal = normal / 255.0;
-
-      if (pixel.b > normal) {
-        pixel = vec4(0.04*pixel.a, 1.0*pixel.a, 0.95*pixel.a, 1.0);
-      }
-      else {
-        pixel = vec4(0.5*pixel.a, 0.5*pixel.a, 0.5*pixel.a, 1.0);
-      }
-    }
-
-    gl_FragColor = gl_Color * pixel;
-  }
-);
-
-static auto WHITE_SHADER = GLSL
-(
-  110,
-  uniform sampler2D texture;
-  uniform float opacity;
-
-  void main()
-  {
-    vec4 pixel = texture2D(texture, gl_TexCoord[0].xy);
-    vec4 color = gl_Color * pixel;
-    color = vec4(1.0, 1.0, 1.0, color.a)*opacity + (1.0 - opacity)*color;
-    gl_FragColor = color;
-  }
-);
-
 class BattleScene : public Activity {
+  friend class SignalRoundOver;
+  friend class SignalCheckHP;
+  friend class LeaveBattleScene;
+  friend class SpawnNewPokemon;
+
 private:
   ResourceManager& resources;
 
@@ -112,7 +48,6 @@ private:
   sf::Text   statusText;
 
   sf::Music battleMusic;
-
   sf::Sound sound;
   
   sf::View view;
@@ -120,187 +55,21 @@ private:
   bool fadeMusic;
   bool preBattleSetup;
   bool doIntro;
-  bool whiteFlash;
-  Timer waitTimer;
-  
+  bool whiteFlash;  
   bool canInteract;
   bool isKeyDown;
 
+  Timer waitTimer;
   ActionList actions;
+
   std::string output;
 
   int rowSelect;
   int colSelect;
 
   std::vector<particle> particles;
-
-  enum FACING : int {
-    BACK,
-    FRONT
-  };
-
   std::vector<pokemon::monster>& playerMonsters;
   pokemon::monster wild;
-
-  class SignalRoundOver : public ActionItem {
-  private: 
-    BattleScene* ref;
-  public:
-    SignalRoundOver(BattleScene* ref) : ActionItem() {
-      this->ref = ref;
-    }
-
-    virtual void update(double elapsed) {
-      this->ref->canInteract = true;
-      this->ref->preBattleSetup = false;
-      markDone();
-    }
-
-    virtual void draw(sf::RenderTexture& surface) { ; }
-  };
-
-  class LeaveBattleScene : public BlockingActionItem {
-  private:
-    BattleScene* ref;
-  public:
-    LeaveBattleScene(BattleScene* ref) : BlockingActionItem() {
-      this->ref = ref;
-    }
-
-    virtual void update(double elapsed) {
-      using intent::segue;
-
-      // we whited out
-      if (this->ref->playerMonsters[0].hp <= 0) {
-        this->ref->getController().queuePop<segue<WhiteWashFade>>();
-      }
-      else {
-        // we won or ran away
-        this->ref->getController().queuePop<segue<BlackWashFade>>();
-      }
-
-      markDone();
-    }
-
-    virtual void draw(sf::RenderTexture& surface) { ; }
-  };
-
-  class SpawnNewPokemon : public BlockingActionItem {
-  private:
-    BattleScene* ref;
-    bool isLoaded;
-    double scale;
-    double total;
-    sf::Shader shader;
-  public:
-    SpawnNewPokemon(BattleScene* ref) : ref(ref), BlockingActionItem() {
-      isLoaded = false;
-      scale = total = 0;
-      shader.loadFromMemory(WHITE_SHADER, sf::Shader::Fragment);
-      shader.setUniform("texture", sf::Shader::CurrentTexture);
-    }
-
-    virtual void update(double elapsed) {
-      total += elapsed;
-
-      if (!isLoaded) {
-        this->ref->playerMonsters.erase(this->ref->playerMonsters.begin());
-        this->ref->loadPlayerPokemonData();
-        isLoaded = true;
-        ref->spawnParticles(this->ref->resources.particleTexture, this->ref->playerSprite.getPosition());
-      }
-
-      scale = ease::linear(total, 0.5, 1.0);
-      this->ref->playerSprite.setScale(scale, scale);
-
-      // linger and fade in from white
-      scale = ease::linear(total, 1.0, 1.0);
-      shader.setUniform("opacity", 1.0f-(float)scale);
-
-      if (total > 1.0)
-        markDone();
-    }
-
-    virtual void draw(sf::RenderTexture& surface) { 
-      sf::RenderStates states;
-      states.shader = &shader;
-
-      surface.draw(this->ref->playerSprite, states);
-    }
-  };
-
-  // This is an interrupting action that clears the list, making room to add a new set of action items
-  // And prevents us from returning to the main battle loop
-  class SignalCheckHP : public ClearAllActions {
-  private: 
-    BattleScene* ref;
-  public:
-    SignalCheckHP(BattleScene* ref) : ClearAllActions() { this->ref = ref; }
-
-    virtual void update(double elapsed) {
-      bool leaveScene = false;
-      bool clearedList = false;
-
-      // Add new events
-      if (ref->wild.hp <= 0) {
-        ClearAllActions::update(elapsed);
-        clearedList = true;
-
-        this->ref->actions.add(new IdleAction(ref->playerSprite));
-        this->ref->actions.add(new RoarAction(ref->wildSprite, &ref->resources.wildRoarBuffer, ref->sound, false));
-        this->ref->actions.add(new FaintAction(ref->wildSprite, *ref->resources.faintBuffer, ref->sound));
-        this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->wild.name + " fainted!"));
-        this->ref->actions.add(new ChangeMusic(ref->battleMusic, VICTORY_MUSIC_PATH));
-        this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
-        GainXPStep* xpAction = new GainXPStep(ref->output, sf::Keyboard::Enter, ref->playerMonsters[0], ref->wild, *ref->resources.selectBuffer, *ref->resources.xpBuffer, *ref->resources.levelupBuffer, ref->sound, ref->actions);
-        this->ref->actions.add(xpAction);
-        this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->playerMonsters[0].name + " gained " + std::to_string(xpAction->getXP()) + " XP!"));
-        this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
-
-        leaveScene = true;
-      }
-      
-      if (ref->playerMonsters[0].hp <= 0) {
-        if (!clearedList) {
-          // Prevent from clearing the recent additions...
-          ClearAllActions::update(elapsed);
-        }
-
-        this->ref->actions.add(new IdleAction(ref->wildSprite));
-        this->ref->actions.add(new RoarAction(ref->playerSprite, &ref->resources.playerRoarBuffer, ref->sound, false));
-        this->ref->actions.add(new FaintAction(ref->playerSprite, *ref->resources.faintBuffer, ref->sound));
-        this->ref->actions.add(new ChangeText(ref->output, std::string() + ref->playerMonsters[0].name + " fainted!"));
-        this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
-
-        
-        if (ref->playerMonsters.size() - 1 == 0) {
-          // we're out of pokemon
-          this->ref->actions.add(new ChangeText(ref->output, std::string() + "Trainer whited out!"));
-          this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
-
-          leaveScene = true;
-        }
-        else {
-          this->ref->actions.add(new ChangeText(ref->output, std::string() + "Go " + ref->playerMonsters[1].name + "!"));
-          this->ref->actions.add(new SpawnNewPokemon(this->ref));
-          this->ref->actions.add(new RoarAction(ref->playerSprite, &ref->resources.playerRoarBuffer, ref->sound));
-          this->ref->actions.add(new IdleAction(ref->playerSprite));
-          this->ref->actions.add(new WaitForButtonPressAction(sf::Keyboard::Key::Enter, *ref->resources.selectBuffer, ref->sound));
-          this->ref->actions.add(new SignalRoundOver(this->ref));
-
-        }
-
-      }
-
-      if (leaveScene) {
-        this->ref->actions.add(new LeaveBattleScene(ref));
-      }
-
-      markDone();
-    }
-
-    virtual void draw(sf::RenderTexture& surface) { ; }
-  };
 
 public:
 
@@ -355,19 +124,19 @@ public:
 
     if (playerMonsters[0].name == "pikachu") {
       resources.playerRoarBuffer = resources.loadSound(PIKACHU_PATH[2]);
-      resources.playerTexture = resources.loadTexture(PIKACHU_PATH[FACING::BACK]);
+      resources.playerTexture = resources.loadTexture(PIKACHU_PATH[pokemon::facing::BACK]);
     } else if (playerMonsters[0].name == "charizard") {
       resources.playerRoarBuffer = resources.loadSound(CHARIZARD_PATH[2]);
-      resources.playerTexture = resources.loadTexture(CHARIZARD_PATH[FACING::BACK]);
+      resources.playerTexture = resources.loadTexture(CHARIZARD_PATH[pokemon::facing::BACK]);
     } else if (playerMonsters[0].name == "roserade") {
       resources.playerRoarBuffer = resources.loadSound(ROSERADE_PATH[2]);
-      resources.playerTexture = resources.loadTexture(ROSERADE_PATH[FACING::BACK]);
+      resources.playerTexture = resources.loadTexture(ROSERADE_PATH[pokemon::facing::BACK]);
     } else if (playerMonsters[0].name == "onix") {
       resources.playerRoarBuffer = resources.loadSound(ONYX_PATH[2]);
-      resources.playerTexture = resources.loadTexture(ONYX_PATH[FACING::BACK]);
+      resources.playerTexture = resources.loadTexture(ONYX_PATH[pokemon::facing::BACK]);
     } else if (playerMonsters[0].name == "piplup") {
       resources.playerRoarBuffer = resources.loadSound(PIPLUP_PATH[2]);
-      resources.playerTexture = resources.loadTexture(PIPLUP_PATH[FACING::BACK]);
+      resources.playerTexture = resources.loadTexture(PIPLUP_PATH[pokemon::facing::BACK]);
     }
 
     playerSprite.setTexture(*resources.playerTexture, true);
@@ -421,11 +190,12 @@ public:
     actions.add(new SignalRoundOver(this));
   }
 
-  void decideBattleOrder(pokemon::monster* first, const pokemon::moves* firstchoice, sf::Sprite* firstSprite, sf::SoundBuffer** firstRoarBuffer, pokemon::monster* second, const pokemon::moves* secondchoice, sf::Sprite* secondSprite, sf::SoundBuffer** secondRoarBuffer) {
-    FACING facing = FACING::BACK;
+  void decideBattleOrder(pokemon::monster* first, const pokemon::moves* firstchoice, sf::Sprite* firstSprite, sf::SoundBuffer** firstRoarBuffer, 
+    pokemon::monster* second, const pokemon::moves* secondchoice, sf::Sprite* secondSprite, sf::SoundBuffer** secondRoarBuffer) {
+    pokemon::facing facing = pokemon::facing::BACK;
 
     if (first == &wild)
-      facing = FACING::FRONT;
+      facing = pokemon::facing::FRONT;
     
     // Our attacks miss
     // TODO: ActionItem interrupt for flying or missing
@@ -523,7 +293,7 @@ public:
     switch (select) {
     case 0:
       wild = pokemon::monster(pokemon::pidgey);
-      resources.wildTexture = resources.loadTexture(PIDGEY_PATH[FACING::FRONT]);
+      resources.wildTexture = resources.loadTexture(PIDGEY_PATH[pokemon::facing::FRONT]);
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(PIDGEY_PATH[2]);
       wild.level = 5 + rand() % 8;
@@ -531,7 +301,7 @@ public:
       break;
     case 1:
       wild = pokemon::monster(pokemon::clefairy);
-      resources.wildTexture = resources.loadTexture(CLEFAIRY_PATH[FACING::FRONT]);
+      resources.wildTexture = resources.loadTexture(CLEFAIRY_PATH[pokemon::facing::FRONT]);
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(CLEFAIRY_PATH[2]);
       wild.level = 5 + rand() % 4;
@@ -540,7 +310,7 @@ public:
       break;
     case 2:
       wild = pokemon::monster(pokemon::geodude);
-      resources.wildTexture = resources.loadTexture(GEODUDE_PATH[FACING::FRONT]);
+      resources.wildTexture = resources.loadTexture(GEODUDE_PATH[pokemon::facing::FRONT]);
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(GEODUDE_PATH[2]);
       wild.level = 5 + rand() % 4;
@@ -549,7 +319,7 @@ public:
       break;
     case 3:
       wild = pokemon::monster(pokemon::ponyta);
-      resources.wildTexture = resources.loadTexture(PONYTA_PATH[FACING::FRONT]);
+      resources.wildTexture = resources.loadTexture(PONYTA_PATH[pokemon::facing::FRONT]);
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(PONYTA_PATH[2]);
       wild.level = 5 + rand() % 4;
@@ -558,7 +328,7 @@ public:
       break;
     case 4:
       wild = pokemon::monster(pokemon::cubone);
-      resources.wildTexture = resources.loadTexture(CUBONE_PATH[FACING::FRONT]);
+      resources.wildTexture = resources.loadTexture(CUBONE_PATH[pokemon::facing::FRONT]);
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(CUBONE_PATH[2]);
       wild.level = 5 + rand() % 4;
@@ -567,7 +337,7 @@ public:
       break;
     case 5:
       wild = pokemon::monster(pokemon::oddish);
-      resources.wildTexture = resources.loadTexture(ODISH_PATH[FACING::FRONT]);
+      resources.wildTexture = resources.loadTexture(ODISH_PATH[pokemon::facing::FRONT]);
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(ODISH_PATH[2]);
       wild.level = 5 + rand() % 1;
@@ -576,7 +346,7 @@ public:
       break;
     case 6:
       wild = pokemon::monster(pokemon::pikachu);
-      resources.wildTexture = resources.loadTexture(PIKACHU_PATH[FACING::FRONT]);
+      resources.wildTexture = resources.loadTexture(PIKACHU_PATH[pokemon::facing::FRONT]);
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(PIKACHU_PATH[2]);
       wild.level = 5 + rand() % 8;
@@ -625,7 +395,7 @@ public:
 
   public:
 
-    // used as shorthand notation for pokeball
+  // used as shorthand notation for pokeball
   void spawnParticles(sf::Texture* texture, sf::Vector2f position, int numPerFrame=100) {
     for (int i = numPerFrame; i > 0; i--) {
       int randNegative = rand() % 2 == 0 ? -1 : 1;
@@ -808,6 +578,7 @@ public:
 
   virtual void onLeave() {
     std::cout << "BattleScene OnLeave called" << std::endl;
+    fadeMusic = true;
   }
 
   virtual void onExit() {

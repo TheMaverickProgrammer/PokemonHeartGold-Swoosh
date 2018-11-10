@@ -1,6 +1,11 @@
 #pragma once
 
 namespace pokemon {
+  enum facing : int {
+    BACK,
+    FRONT
+  };
+
   enum element : int {
     N_A, // Not applicable
     ELECTRIC,

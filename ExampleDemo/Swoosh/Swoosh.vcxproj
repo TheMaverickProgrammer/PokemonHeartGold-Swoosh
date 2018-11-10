@@ -166,23 +166,53 @@
     <ClInclude Include="..\..\src\Segues\VerticalSlice.h" />
     <ClInclude Include="..\..\src\Segues\WhiteWashFade.h" />
     <ClInclude Include="ActionList.h" />
+    <ClInclude Include="AttackUpAction.h" />
     <ClInclude Include="BattleActions.h" />
+    <ClInclude Include="BobAction.h" />
     <ClInclude Include="Button.h" />
+    <ClInclude Include="ChangeMusic.h" />
+    <ClInclude Include="ChangeText.h" />
     <ClInclude Include="CustomPokemonSegues\DisplacementPokemonSegue.h" />
     <ClInclude Include="CustomPokemonSegues\GreyScalePatternPokemonSegue.h" />
+    <ClInclude Include="DefenseDownAction.h" />
     <ClInclude Include="DemoActivities\BattleScene.h" />
     <ClInclude Include="DemoActivities\DemoScene.h" />
     <ClInclude Include="DemoActivities\MainMenuScene.h" />
+    <ClInclude Include="FaintAction.h" />
+    <ClInclude Include="FlameThrowerAction.h" />
+    <ClInclude Include="FlyAction.h" />
+    <ClInclude Include="GainXPStep.h" />
+    <ClInclude Include="IdleAction.h" />
+    <ClInclude Include="LeaveBattleScene.h" />
     <ClInclude Include="Particle.h" />
     <ClInclude Include="Pokemon.h" />
     <ClInclude Include="ResourceManager.h" />
     <ClInclude Include="ResourcePaths.h" />
     <ClInclude Include="pch.h" />
+    <ClInclude Include="RoarAction.h" />
+    <ClInclude Include="Shaders.h" />
+    <ClInclude Include="SignalCheckHP.h" />
+    <ClInclude Include="SignalRoundOver.h" />
+    <ClInclude Include="SpawnNewPokemon.h" />
+    <ClInclude Include="TackleAction.h" />
+    <ClInclude Include="TailWhipAction.h" />
+    <ClInclude Include="TakeDamage.h" />
     <ClInclude Include="TMXMapLayer.h" />
+    <ClInclude Include="WaitForButtonPressAction.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ActionList.cpp" />
-    <ClCompile Include="BattleActions.cpp" />
+    <ClCompile Include="AttackUpAction.cpp" />
+    <ClCompile Include="BobAction.cpp" />
+    <ClCompile Include="ChangeMusic.cpp" />
+    <ClCompile Include="ChangeText.cpp" />
+    <ClCompile Include="DefenseDownAction.cpp" />
+    <ClCompile Include="FaintAction.cpp" />
+    <ClCompile Include="FlameThrowerAction.cpp" />
+    <ClCompile Include="FlyAction.cpp" />
+    <ClCompile Include="GainXPStep.cpp" />
+    <ClCompile Include="IdleAction.cpp" />
+    <ClCompile Include="LeaveBattleScene.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -191,6 +221,14 @@
     </ClCompile>
     <ClCompile Include="Demo.cpp" />
     <ClCompile Include="ResourceManager.cpp" />
+    <ClCompile Include="RoarAction.cpp" />
+    <ClCompile Include="SignalCheckHP.cpp" />
+    <ClCompile Include="SignalRoundOver.cpp" />
+    <ClCompile Include="SpawnNewPokemon.cpp" />
+    <ClCompile Include="TackleAction.cpp" />
+    <ClCompile Include="TailWhipAction.cpp" />
+    <ClCompile Include="TakeDamage.cpp" />
+    <ClCompile Include="WaitForButtonPressAction.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

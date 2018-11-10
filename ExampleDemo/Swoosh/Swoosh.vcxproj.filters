@@ -43,6 +43,9 @@
     <Filter Include="Source Files\Demo\Segues\CustomPokemonSegues">
       <UniqueIdentifier>{f94666ea-cbc1-4cc0-9e2a-15eb1a46685a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Source Files\Demo\Utils\Data\CustomActions">
+      <UniqueIdentifier>{bc7fa82e-7009-4091-8b14-806feb68ae9f}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="pch.h">
@@ -108,6 +111,66 @@
     <ClInclude Include="CustomPokemonSegues\DisplacementPokemonSegue.h">
       <Filter>Source Files\Demo\Segues\CustomPokemonSegues</Filter>
     </ClInclude>
+    <ClInclude Include="Shaders.h">
+      <Filter>Source Files\Demo\Utils\Resources</Filter>
+    </ClInclude>
+    <ClInclude Include="IdleAction.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="BobAction.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="ChangeMusic.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="TakeDamage.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="AttackUpAction.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="DefenseDownAction.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="GainXPStep.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="WaitForButtonPressAction.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="ChangeText.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="RoarAction.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="FlameThrowerAction.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="FaintAction.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="TackleAction.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="TailWhipAction.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="FlyAction.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="SignalRoundOver.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="SpawnNewPokemon.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="LeaveBattleScene.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="SignalCheckHP.h">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -119,11 +182,65 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Source Files\Demo\Utils\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="BattleActions.cpp">
-      <Filter>Source Files\Demo\Utils\Data</Filter>
-    </ClCompile>
     <ClCompile Include="ActionList.cpp">
       <Filter>Source Files\Demo\Utils</Filter>
+    </ClCompile>
+    <ClCompile Include="IdleAction.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="BobAction.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="ChangeMusic.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="TakeDamage.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="AttackUpAction.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="DefenseDownAction.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="GainXPStep.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="WaitForButtonPressAction.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="ChangeText.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="RoarAction.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="FlameThrowerAction.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="FaintAction.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="TackleAction.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="TailWhipAction.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="FlyAction.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="SignalRoundOver.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="LeaveBattleScene.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="SpawnNewPokemon.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClCompile>
+    <ClCompile Include="SignalCheckHP.cpp">
+      <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
     </ClCompile>
   </ItemGroup>
 </Project>
