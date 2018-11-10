@@ -6,7 +6,7 @@ TackleAction::TackleAction(sf::Sprite& ref, int facing) : ref(ref), facing(facin
   original = ref.getPosition();
 }
 
-TackleAction::~TackleAction() { ref.setPosition(original); }
+TackleAction::~TackleAction() { }
 
 void TackleAction::update(double elapsed) {
   total += elapsed;
@@ -22,4 +22,5 @@ void TackleAction::update(double elapsed) {
 
 void TackleAction::draw(sf::RenderTexture& surface) {
   surface.draw(ref);
+  ref.setPosition(original);
 }

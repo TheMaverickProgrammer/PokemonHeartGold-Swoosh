@@ -14,7 +14,6 @@ GainXPStep::GainXPStep(std::string& output, pokemon::monster& ref, pokemon::mons
 }
 
 GainXPStep::~GainXPStep() {
-  monster.xp = this->xp;
 }
 
 void GainXPStep::overwriteXP(int xp) { this->xp = xp; }

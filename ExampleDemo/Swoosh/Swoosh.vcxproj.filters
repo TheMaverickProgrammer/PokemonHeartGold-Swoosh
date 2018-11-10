@@ -182,9 +182,6 @@
     <ClCompile Include="ResourceManager.cpp">
       <Filter>Source Files\Demo\Utils\Resources</Filter>
     </ClCompile>
-    <ClCompile Include="ActionList.cpp">
-      <Filter>Source Files\Demo\Utils</Filter>
-    </ClCompile>
     <ClCompile Include="IdleAction.cpp">
       <Filter>Source Files\Demo\Data\BattleActions</Filter>
     </ClCompile>

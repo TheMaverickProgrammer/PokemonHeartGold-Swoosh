@@ -201,7 +201,6 @@
     <ClInclude Include="WaitForButtonPressAction.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="ActionList.cpp" />
     <ClCompile Include="AttackUpAction.cpp" />
     <ClCompile Include="BobAction.cpp" />
     <ClCompile Include="ChangeMusic.cpp" />

@@ -8,8 +8,6 @@ TakeDamage::TakeDamage(pokemon::monster& ref, int damage, sf::SoundBuffer& buffe
 }
 
 TakeDamage::~TakeDamage() {
-  monster.hp = health - damage;
-
 }
 
 void TakeDamage::update(double elapsed) {

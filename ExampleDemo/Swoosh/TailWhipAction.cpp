@@ -7,7 +7,7 @@ TailWhipAction::TailWhipAction(sf::Sprite& ref, sf::SoundBuffer& buffer, sf::Sou
   doOnce = false;
 }
 
-TailWhipAction::~TailWhipAction() { ref.setPosition(original); }
+TailWhipAction::~TailWhipAction() { }
 
 void TailWhipAction::update(double elapsed) {
   if (!doOnce) {
@@ -28,4 +28,5 @@ void TailWhipAction::update(double elapsed) {
 
 void TailWhipAction::draw(sf::RenderTexture& surface) {
   surface.draw(ref);
+  ref.setPosition(original);
 }

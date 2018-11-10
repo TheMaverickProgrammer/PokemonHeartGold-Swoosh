@@ -10,7 +10,7 @@ FlamethrowerAction::FlamethrowerAction(BattleScene& scene, sf::Sprite& ref, int 
 }
 
 FlamethrowerAction::~FlamethrowerAction() {
-  ref.setPosition(original);
+
 }
 
 void FlamethrowerAction::update(double elapsed) {
@@ -54,10 +54,11 @@ void FlamethrowerAction::update(double elapsed) {
   target.setColor(sf::Color(255, 255 * (1.0 - alpha), 255 * (1.0 - alpha), 255)); // turn them red
 
 
-  if (total >= 2)
+  if (total >= 2) 
     markDone();
 }
 
 void FlamethrowerAction::draw(sf::RenderTexture& surface) {
   surface.draw(ref);
+  ref.setPosition(original);
 }

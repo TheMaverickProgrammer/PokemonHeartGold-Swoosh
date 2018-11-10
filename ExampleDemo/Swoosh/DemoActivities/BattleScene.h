@@ -197,89 +197,85 @@ public:
     if (first == &wild)
       facing = pokemon::facing::FRONT;
     
-    // Our attacks miss
-    // TODO: ActionItem interrupt for flying or missing
-    if (second->isFlying) {
-      // If the attacking pokemon was also flying, come back down
-      if (first->isFlying) {
-        actions.add(new FlyAction(*firstSprite, *first, *resources.flyBuffer, sound));
-      }
+    ActionList* missedActionList = new ActionList();
+    ActionList* defaultActionList = new ActionList();
 
-      actions.add(new ChangeText(output, std::string(first->name) + " missed!"));
-      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
-
-      return;
-    }
+    (*missedActionList).add(new ChangeText(output, std::string(first->name) + " missed!"));
+    (*missedActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
     if (first->isFlying) {
-      actions.add(new ChangeText(output, std::string(first->name) + " is flying!"));
-      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
-      actions.add(new FlyAction(*firstSprite, *first, *resources.flyBuffer, sound));
-      actions.add(new ChangeText(output, std::string(first->name) + " attacked\nfrom above!"));
-      actions.add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
-      actions.add(new SignalCheckHP(this));
-      actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+      (*defaultActionList).add(new ChangeText(output, std::string(first->name) + " is flying!"));
+      (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+      (*defaultActionList).add(new FlyAction(*firstSprite, *first, *resources.flyBuffer, sound));
+      (*defaultActionList).add(new ChangeText(output, std::string(first->name) + " attacked\nfrom above!"));
+      (*defaultActionList).add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
+      (*defaultActionList).add(new SignalCheckHP(this));
+      (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
     }
     else {
       if (firstchoice->name == "tackle") {
-        actions.add(new ChangeText(output, std::string(first->name) + " used tackle!"));
-        actions.add(new TackleAction(*firstSprite, facing));
-        actions.add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
-        actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+        (*defaultActionList).add(new ChangeText(output, std::string(first->name) + " used tackle!"));
+        (*defaultActionList).add(new TackleAction(*firstSprite, facing));
+        (*defaultActionList).add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
+        (*defaultActionList).add(new SignalCheckHP(this));
+        (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       }
       else if (firstchoice->name == "tail whip") {
-        actions.add(new ChangeText(output, std::string(first->name) + " used tail whip!"));
-        actions.add(new TailWhipAction(*firstSprite, *resources.tailWhipBuffer, sound));
-        actions.add(new DefenseDownAction(*secondSprite, *resources.ddownTexture, *resources.statsFallBuffer, sound));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
-        actions.add(new ChangeText(output, std::string(second->name) + "'s defense\nfell sharply!"));
-        actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+        (*defaultActionList).add(new ChangeText(output, std::string(first->name) + " used tail whip!"));
+        (*defaultActionList).add(new TailWhipAction(*firstSprite, *resources.tailWhipBuffer, sound));
+        (*defaultActionList).add(new DefenseDownAction(*secondSprite, *resources.ddownTexture, *resources.statsFallBuffer, sound));
+        (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+        (*defaultActionList).add(new ChangeText(output, std::string(second->name) + "'s defense\nfell sharply!"));
+        (*defaultActionList).add(new SignalCheckHP(this));
+        (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       }
       else if (firstchoice->name == "roar") {
-        actions.add(new ChangeText(output, std::string(first->name) + " used roar!"));
-        actions.add(new RoarAction(*firstSprite, firstRoarBuffer, sound));
-        actions.add(new AttackUpAction(*firstSprite, *resources.aupTexture, *resources.statsRiseBuffer, sound));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
-        actions.add(new ChangeText(output, std::string(first->name) + "'s attack\nrose!"));
-        actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+        (*defaultActionList).add(new ChangeText(output, std::string(first->name) + " used roar!"));
+        (*defaultActionList).add(new RoarAction(*firstSprite, firstRoarBuffer, sound));
+        (*defaultActionList).add(new AttackUpAction(*firstSprite, *resources.aupTexture, *resources.statsRiseBuffer, sound));
+        (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+        (*defaultActionList).add(new ChangeText(output, std::string(first->name) + "'s attack\nrose!"));
+        (*defaultActionList).add(new SignalCheckHP(this));
+        (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       }
       else if (firstchoice->name == "thunder") {
-        actions.add(new ChangeText(output, std::string(first->name) + " used thunder!"));
-        actions.add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
-        actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+        (*defaultActionList).add(new ChangeText(output, std::string(first->name) + " used thunder!"));
+        (*defaultActionList).add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
+        (*defaultActionList).add(new SignalCheckHP(this));
+        (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       }
       else if (firstchoice->name == "fly") {
-        actions.add(new FlyAction(*firstSprite, *first, *resources.flyBuffer, sound));
-        actions.add(new ChangeText(output, std::string(first->name) + " used fly!"));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
-        actions.add(new ChangeText(output, std::string(first->name) + " flew\nup into the sky!"));
-        actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+        (*defaultActionList).add(new FlyAction(*firstSprite, *first, *resources.flyBuffer, sound));
+        (*defaultActionList).add(new ChangeText(output, std::string(first->name) + " used fly!"));
+        (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+        (*defaultActionList).add(new ChangeText(output, std::string(first->name) + " flew\nup into the sky!"));
+        (*defaultActionList).add(new SignalCheckHP(this));
+        (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
       }
       else if (firstchoice->name == "flamethrower") {
-        actions.add(new ChangeText(output, std::string(first->name) + " used\nflamethrower!"));
-        actions.add(new FlamethrowerAction(*this, *firstSprite, facing, *resources.flameBuffer, sound, *secondSprite, *resources.fireTexture));
-        actions.add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
-        actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+        (*defaultActionList).add(new ChangeText(output, std::string(first->name) + " used\nflamethrower!"));
+        (*defaultActionList).add(new FlamethrowerAction(*this, *firstSprite, facing, *resources.flameBuffer, sound, *secondSprite, *resources.fireTexture));
+        (*defaultActionList).add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
+        (*defaultActionList).add(new SignalCheckHP(this));
+        (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
       }
       else if (firstchoice->name == "nomove") {
-        actions.add(new ChangeText(output, std::string(first->name) + " is struggling!"));
-        actions.add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
-        actions.add(new TakeDamage(*first, firstchoice->damage, *resources.attackNormalBuffer, sound));
-        actions.add(new SignalCheckHP(this));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
+        (*defaultActionList).add(new ChangeText(output, std::string(first->name) + " is struggling!"));
+        (*defaultActionList).add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
+        (*defaultActionList).add(new TakeDamage(*first, firstchoice->damage, *resources.attackNormalBuffer, sound));
+        (*defaultActionList).add(new SignalCheckHP(this));
+        (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
       }
     }
+
+    // Our attacks miss unless its a flying move- we can go up in the sky and try to hit next turn
+    auto condition = [second, firstchoice]() { return second->isFlying && &(*firstchoice) != &pokemon::fly;  };
+    actions.add(new ConditionalAction(condition, missedActionList, defaultActionList));
   }
 
   pokemon::monster makeWildPokemon() {
@@ -441,6 +437,7 @@ public:
 
   private:
   virtual void onUpdate(double elapsed) {
+    // Speed up the battle when holding down this key
     if (sf::Keyboard::isKeyPressed(sf::Keyboard::Space))
       elapsed *= 2.5;
 
@@ -450,12 +447,16 @@ public:
       battleMusic.setVolume(battleMusic.getVolume() * 0.90); // quieter
     }
 
+    // 2 seconds at most for the intro
     if (waitTimer.getElapsed().asSeconds() > 2) {
       if (!preBattleSetup) {
+        // Before the round begins, we clear the action list
+        // And make the player bob
         actions.add(new ClearPreviousActions());
         actions.add(new IdleAction(wildSprite));
         actions.add(new BobAction(playerSprite));
 
+        // Only show this one time at the start of the scene
         if (!doIntro) {
           actions.add(new ChangeText(output, "A wild " + std::string(wild.name) + " appeard!"));
           actions.add(new RoarAction(wildSprite, &resources.wildRoarBuffer, sound));
@@ -516,6 +517,7 @@ public:
 
       const pokemon::moves* choice = &pokemon::nomove;
 
+      // Flying pokemon take 2 turns
       if (playerMonsters[0].isFlying) {
         isKeyDown = false; 
         canInteract = false;
@@ -524,6 +526,7 @@ public:
         actions.add(new ChangeText(output, "Your pokemon is still\nin the sky!"));
         actions.add(new WaitForButtonPressAction(sf::Keyboard::Space, *resources.selectBuffer, sound));
         generateBattleActions(*choice);
+        return;
       }
       else {
         if (colSelect == 0 && rowSelect == 0) {
@@ -626,6 +629,7 @@ public:
       // draw the ui
       states.shader = &statusShader;
 
+      // The ui shader takes in hp and xp from 0.0 to 1.0
       float hp = (float)playerMonsters[0].hp / (float)playerMonsters[0].maxhp;
       statusShader.setUniform("hp", hp);
       statusShader.setUniform("xp", (float)playerMonsters[0].xp / 100.0f);
@@ -646,31 +650,36 @@ public:
       statusText.setPosition(enemyStatusSprite.getPosition().x + 85, enemyStatusSprite.getPosition().y + 11);
       surface.draw(statusText);
 
+      double columnRight = getView().getSize().x / 2.0;
+      double columnLeft = 12;
+      double rowTop = 10 + getView().getSize().y / 4.0 * 3.0;
+      double rowBot = 10 + getView().getSize().y / 4.0 * 3.5;
+
       // Draw a menu of the current pokemon's abilities
       if (canInteract) {
         menuText.setString("°");
 
         // Draw the karat
         if (colSelect == 0 && rowSelect == 0) {
-          menuText.setPosition(12, 10 + getView().getSize().y / 4.0 * 3.0);
+          menuText.setPosition(columnLeft, rowTop);
         }
 
         if (colSelect == 1 && rowSelect == 0) {
-          menuText.setPosition(getView().getSize().x/2.0, 10 + getView().getSize().y / 4.0 * 3.0);
+          menuText.setPosition(columnRight, rowTop);
         }
 
         if (colSelect == 0 && rowSelect == 1) {
-          menuText.setPosition(12, 10 + getView().getSize().y / 4.0 * 3.5);
+          menuText.setPosition(columnLeft, rowBot);
         }
 
         if (colSelect == 1 && rowSelect == 1) {
-          menuText.setPosition(getView().getSize().x / 2.0, 10 + getView().getSize().y / 4.0 * 3.5);
+          menuText.setPosition(columnRight, rowBot);
         }
 
         surface.draw(menuText);
 
         // Now draw the title of the moves
-        menuText.setPosition(22, 10 + getView().getSize().y / 4.0 * 3.0);
+        menuText.setPosition(columnLeft + 10, rowTop);
 
         if(playerMonsters[0].move1 == nullptr) {
           menuText.setString("-");
@@ -681,7 +690,7 @@ public:
 
         surface.draw(menuText);
 
-        menuText.setPosition(10 + getView().getSize().x / 2.0, 10 + getView().getSize().y / 4.0 * 3.0);
+        menuText.setPosition(10 + columnRight, rowTop);
         if (playerMonsters[0].move2 == nullptr) {
           menuText.setString("-");
         }
@@ -691,7 +700,7 @@ public:
 
         surface.draw(menuText);
 
-        menuText.setPosition(22, 10 + getView().getSize().y / 4.0 * 3.5);
+        menuText.setPosition(10 + columnLeft, rowBot);
         if (playerMonsters[0].move3 == nullptr) {
           menuText.setString("-");
         }
@@ -701,7 +710,7 @@ public:
 
         surface.draw(menuText);
 
-        menuText.setPosition(10 + getView().getSize().x / 2.0, 10 + getView().getSize().y / 4.0 * 3.5);
+        menuText.setPosition(10 + columnRight, rowBot);
         if (playerMonsters[0].move4 == nullptr) {
           menuText.setString("-");
         }
@@ -714,11 +723,12 @@ public:
       }
       else {
         menuText.setString(output);
-        menuText.setPosition(14, 10 + getView().getSize().y / 4.0 * 3.0);
+        menuText.setPosition(2 + columnLeft, rowTop);
         surface.draw(menuText);
       }
     }
     else {
+      // Otherwise draw just the pokemon in greyscale for the intro
       surface.draw(battlePadBGSprite, states);
       surface.draw(battlePadFGSprite, states);
       surface.draw(wildSprite, states);

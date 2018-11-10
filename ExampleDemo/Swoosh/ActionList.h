@@ -1,9 +1,13 @@
 #pragma once
 #include <SFML\Graphics.hpp>
 #include <functional>
+#include <iostream>
 
 class ActionItem {
   friend class ActionList;
+  friend class ClearPreviousActions;
+  friend class ClearAllActions;
+  friend class ConditionalAction;
 
 protected:
   bool isBlocking;
@@ -11,9 +15,10 @@ protected:
 private:
   bool isDoneFlag;
   std::size_t index;
+  ActionList *list;
 
 public:
-  ActionItem() { isBlocking = isDoneFlag = false; index = -1; }
+  ActionItem() { isBlocking = isDoneFlag = false; index = -1; list = nullptr; }
   virtual void update(double elapsed) = 0;
   virtual void draw(sf::RenderTexture& surface) = 0;
   void markDone() { isDoneFlag = true; }
@@ -50,22 +55,29 @@ public:
   }
 
   void insert(std::size_t pos, ActionItem* item) {
-    item->index = pos;
+    item->list = this;
     items.insert(items.begin() + pos, item);
-
+    item->index = pos;
     updateIndexesFrom(pos);
   }
 
-  void insert(std::size_t pos, ClearPreviousActions* clearAction);
-  void insert(std::size_t pos, ClearAllActions*      clearAction);
+
+  void insert(std::size_t pos, ActionList* other) {
+    if (other == nullptr)
+      throw std::runtime_error("ActionList is nullptr");
+
+    for (int i = 0; i < other->items.size(); i++) {
+      this->insert(pos + i, other->items[i]);
+    }
+
+    other->items.clear();
+  }
 
   void add(ActionItem* item) {
+    item->list = this;
     items.push_back(item);
     item->index = items.size()-1;
   }
-
-  void add(ClearPreviousActions* clearAction);
-  void add(ClearAllActions*      clearAction);
 
   const bool isEmpty() {
     return items.size();
@@ -96,6 +108,7 @@ public:
     }
 
     list->items.clear();
+
   }
 
   void update(double elapsed) {
@@ -143,11 +156,8 @@ public:
 class ClearPreviousActions : public BlockingActionItem {
   friend class ActionList;
 
-private:
-  ActionList* list;
-
 public:
-  ClearPreviousActions() : list(nullptr) {
+  ClearPreviousActions() {
     
   }
 
@@ -178,11 +188,8 @@ public:
 class ClearAllActions : public BlockingActionItem {
   friend class ActionList;
 
-private:
-  ActionList* list;
-
 public:
-  ClearAllActions() : list(nullptr) {
+  ClearAllActions() {
 
   }
 
@@ -213,12 +220,17 @@ class ConditionalAction : public BlockingActionItem {
   friend class ActionList;
 
 private:
-  ActionList *branchIfTrue, *branchIfFalse, *list;
+  ActionList *branchIfTrue, *branchIfFalse;
   std::function<bool()> condition;
 public:
   ConditionalAction(std::function<bool()> condition, ActionList *branchIfTrue, ActionList *branchIfFalse) 
-    : condition(condition), branchIfTrue(branchIfTrue), branchIfFalse(branchIfFalse), list(nullptr) {
+    : condition(condition), branchIfTrue(branchIfTrue), branchIfFalse(branchIfFalse) {
 
+  }
+
+  ~ConditionalAction() {
+    if (branchIfFalse) delete branchIfFalse;
+    if (branchIfTrue)  delete branchIfTrue;
   }
 
   virtual void update(double elapsed) {
@@ -226,11 +238,14 @@ public:
       return;
 
     if (condition()) {
-      list->append(branchIfTrue);
+      std::cout << "condition was true" << std::endl;
+      list->insert(getIndex(), branchIfTrue);
       branchIfFalse->clear();
     }
     else {
-      list->append(branchIfFalse);
+      std::cout << "condition was false" << std::endl;
+
+      list->insert(getIndex(), branchIfFalse);
       branchIfTrue->clear();
     }
 
