@@ -12,6 +12,9 @@ do not recommend for production
 */
 class ResourceManager
 {
+private:
+  int progress;
+
 public:
   tmx::Map map;
   MapLayer *layerZero;
@@ -82,9 +85,10 @@ public:
   /*
   In a production scenario, the manager would add up the total
   number. We'd queue a resource for loading somewhere else behfore hand.*/
-  const int getResourceCount() { return 27;  }
-
-  void load(std::atomic<int>& progress);
+  const int getResourceCount() const { return 31;  }
+  const int getProgress() const { return progress; }
+  const bool isLoaded() const { return progress == getResourceCount(); }
+  void load();
 
   ResourceManager();
   ~ResourceManager();

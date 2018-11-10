@@ -176,8 +176,8 @@
     <ClInclude Include="CustomPokemonSegues\GreyScalePatternPokemonSegue.h" />
     <ClInclude Include="DefenseDownAction.h" />
     <ClInclude Include="DemoActivities\BattleScene.h" />
-    <ClInclude Include="DemoActivities\DemoScene.h" />
     <ClInclude Include="DemoActivities\MainMenuScene.h" />
+    <ClInclude Include="DemoActivities\OverworldScene.h" />
     <ClInclude Include="FaintAction.h" />
     <ClInclude Include="FlameThrowerAction.h" />
     <ClInclude Include="FlyAction.h" />

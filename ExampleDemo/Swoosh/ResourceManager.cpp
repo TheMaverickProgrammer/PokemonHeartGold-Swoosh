@@ -3,6 +3,7 @@
 
 ResourceManager::ResourceManager()
 {
+  progress = 0;
 }
 
 
@@ -47,7 +48,7 @@ ResourceManager::~ResourceManager()
   delete menuFont;
 }
 
-void ResourceManager::load(std::atomic<int>& progress) {
+void ResourceManager::load() {
   progress = 0;
 
   map.load(OVERWORLD_TMX_PATH); progress++;

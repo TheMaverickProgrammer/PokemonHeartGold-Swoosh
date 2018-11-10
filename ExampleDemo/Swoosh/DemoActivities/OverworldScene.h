@@ -6,14 +6,16 @@
 #include <tmxlite\Map.hpp>
 
 #include "MainMenuScene.h"
+#include "BattleScene.h"
 #include "..\TMXMapLayer.h"
 #include "..\Particle.h"
 #include "..\ResourceManager.h"
+#include "..\Pokemon.h"
 
 #include <Segues\Checkerboard.h>
 #include <Segues\WhiteWashFade.h>
-#include "../CustomPokemonSegues/GreyScalePatternPokemonSegue.h"
-#include "../CustomPokemonSegues/DisplacementPokemonSegue.h"
+#include "..\CustomPokemonSegues/GreyScalePatternPokemonSegue.h"
+#include "..\CustomPokemonSegues/DisplacementPokemonSegue.h"
 
 #include <iostream>
 #include <assert.h>
@@ -22,9 +24,9 @@ using namespace swoosh;
 using namespace swoosh::game;
 using namespace swoosh::intent;
 
-class DemoScene : public Activity {
+class OverworldScene : public Activity {
 private:
-  ResourceManager& resources;
+  ResourceManager &resources;
 
   sf::View view;
 
@@ -48,7 +50,8 @@ private:
 
   std::vector<pokemon::monster> playerMonsters;
 public:
-  DemoScene(ActivityController& controller, ResourceManager &resources) : resources(resources), Activity(controller) { 
+  OverworldScene(ActivityController& controller, ResourceManager &resources) 
+    : resources(resources), Activity(controller) {
     inFocus = false;
     isWalking = false;
     moveSpacesLeft = 0;
@@ -78,7 +81,7 @@ public:
   }
 
   virtual void onStart() {
-    std::cout << "DemoScene onStart called" << std::endl;
+    std::cout << "OverworldScene onStart called" << std::endl;
     townMusic.play();
   }
 
@@ -107,7 +110,7 @@ public:
             int random_battle = rand() % 100;
 
             if (random_battle >= 79) {
-              int random_segue = rand() % 2;
+              int random_segue = 2; // rand() % 2;
 
               if (random_segue == 0) {
                 getController().push<segue<PokeBallCircle, sec<3>>::to<BattleScene>>(resources, playerMonsters);
@@ -120,7 +123,7 @@ public:
               }
             }
           }
-        } 
+        }
         else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Up)) {
           playerDirection = Direction::UP;
 
@@ -163,7 +166,7 @@ public:
         }
       }
       else {
-        if  (playerDirection == Direction::UP) {
+        if (playerDirection == Direction::UP) {
           view.setCenter(view.getCenter() - sf::Vector2f(0.0f, 2.0f));
         }
         else if (playerDirection == Direction::DOWN) {
@@ -187,31 +190,30 @@ public:
 
   virtual void onLeave() {
     inFocus = false;
-    std::cout << "DemoScene onLeave called" << std::endl;
+    std::cout << "OverworldScene onLeave called" << std::endl;
 
   }
 
   virtual void onExit() {
-    std::cout << "DemoScene onExit called" << std::endl;
+    std::cout << "OverworldScene onExit called" << std::endl;
     townMusic.stop();
   }
 
   virtual void onEnter() {
-    std::cout << "DemoScene onEnter called" << std::endl;
-
+    std::cout << "OverworldScene onEnter called" << std::endl;
   }
 
   virtual void onResume() {
     inFocus = true;
-    std::cout << "DemoScene onResume called" << std::endl;
+    std::cout << "OverworldScene onResume called" << std::endl;
     townMusic.play();
     townMusic.setVolume(100);
   }
 
   virtual void onDraw(sf::RenderTexture& surface) {
-    int frame = ((int)walkAnim.getElapsed().asMilliseconds()/200) % 4;
+    int frame = ((int)walkAnim.getElapsed().asMilliseconds() / 200) % 4;
 
-    if (frame == 3) frame = 1; 
+    if (frame == 3) frame = 1;
 
     player.setTextureRect(sf::IntRect(21 * frame, (int)playerDirection * 28, 21, 28));
     setOrigin(player, 0.5, 0.5);
@@ -228,8 +230,8 @@ public:
   }
 
   virtual void onEnd() {
-    std::cout << "DemoScene onEnd called" << std::endl;
+    std::cout << "OverworldScene onEnd called" << std::endl;
   }
 
-  virtual ~DemoScene() { ; }
+  virtual ~OverworldScene() { ; }
 };

@@ -54,9 +54,6 @@
     <ClInclude Include="Particle.h">
       <Filter>Source Files\Demo\Utils</Filter>
     </ClInclude>
-    <ClInclude Include="DemoActivities\DemoScene.h">
-      <Filter>Source Files\Demo\Activities</Filter>
-    </ClInclude>
     <ClInclude Include="DemoActivities\MainMenuScene.h">
       <Filter>Source Files\Demo\Activities</Filter>
     </ClInclude>
@@ -170,6 +167,9 @@
     </ClInclude>
     <ClInclude Include="SignalCheckHP.h">
       <Filter>Source Files\Demo\Utils\Data\CustomActions</Filter>
+    </ClInclude>
+    <ClInclude Include="DemoActivities\OverworldScene.h">
+      <Filter>Source Files\Demo\Activities</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

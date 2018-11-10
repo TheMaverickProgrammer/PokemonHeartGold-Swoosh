@@ -17,10 +17,8 @@
 #include <Segues\HorizontalOpen.h>
 #include <Segues\VerticalOpen.h>
 
-#include "DemoScene.h"
-#include "BattleScene.h"
 #include "ResourceManager.h"
-#include "Particle.h"
+#include "../Shaders.h"
 
 #include <iostream>
 

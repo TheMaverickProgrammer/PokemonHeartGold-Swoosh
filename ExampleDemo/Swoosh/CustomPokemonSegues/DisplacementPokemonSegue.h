@@ -14,11 +14,18 @@ static auto DISPLACEMENT_PATTERN_FRAG_SHADER = GLSL
 
   void main()
   {
-    vec4 displacement = texture2D(pattern, gl_TexCoord[0].xy);
-    displacement = ((displacement * 2.0) - 1.0) * progress;
+    float direction = mod(floor(gl_FragCoord.y*19.0), 2.0) * 2.0 - 1.0;
 
-    vec2 newTexCoord = gl_TexCoord[0].xy + displacement.xy;
+    /*vec4 displacement = texture2D(pattern, gl_TexCoord[0].xy);
+    displacement = ((displacement * 2.0) - 1.0) * progress;
+    */
+
+    vec2 newTexCoord = gl_TexCoord[0].xy + vec2(direction * progress, 0);
     vec4 pixel = texture2D(texture, newTexCoord);
+
+    if (newTexCoord.x > 1.0 || newTexCoord.x < 0.0) {
+      pixel = vec4(0.0, 0.0, 0.0, 1.0);
+    }
 
     vec4 color = gl_Color * pixel;
     gl_FragColor = color;
