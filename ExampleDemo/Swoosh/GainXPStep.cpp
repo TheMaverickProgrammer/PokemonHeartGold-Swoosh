@@ -8,8 +8,8 @@ GainXPStep::GainXPStep(std::string& output, pokemon::monster& ref, pokemon::mons
   : output(output), buttonBuffer(buttonBuffer), buffer(buffer), levelupBuffer(levelupBuffer), sound(sound), monster(ref),
   defeated(defeated), actions(actions), BlockingActionItem() {
   // In a real game, increase xp by level and other factors
-  // In ours, guess the level by the difference in max hp. 
-  this->xp = this->gainedxp = std::ceil((defeated.xp*0.98*(defeated.level / ref.level)));
+  // In ours, multiply the xp by the gap in levels and a deginerative value
+  this->xp = this->gainedxp = std::ceil((defeated.xp*0.98*((double)defeated.level / (double)ref.level)));
   playOnce = false;
 }
 
