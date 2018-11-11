@@ -14,6 +14,10 @@ ALL RIGHTS BELONG TO NINTENDO.
 # Video
 Watch most of the playthrough [here](https://streamable.com/vyfhq)!
 
+Or click the preview
+
+[![clip](https://media.giphy.com/media/1WbJank711TIIMmVr4/giphy.gif)](https://streamable.com/vyfhq)
+
 You'll see 3 pokemon-style segues just like from the games! 
 
 You'll see 8+ different pokemon!
