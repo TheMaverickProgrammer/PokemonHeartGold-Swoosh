@@ -3,6 +3,7 @@
 #include <SFML\Audio.hpp>
 #include <SFML\Graphics.hpp>
 #include <Swoosh\Ease.h>
+#include <Swoosh\Game.h>
 
 class ThunderboltAction : public BlockingActionItem
 {

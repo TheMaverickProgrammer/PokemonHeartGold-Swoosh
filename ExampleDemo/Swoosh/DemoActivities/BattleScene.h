@@ -309,7 +309,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(PIDGEY_PATH[2]);
       wild.level = 5 + rand() % 8;
-      wild.xp = 25; // base worth 25 xp
+      wild.xp = 35; // base worth 35 xp
       break;
     case 1:
       wild = pokemon::monster(pokemon::clefairy);
@@ -317,7 +317,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(CLEFAIRY_PATH[2]);
       wild.level = 5 + rand() % 4;
-      wild.xp = 50; // base worth 50 xp
+      wild.xp = 40; // base worth 40 xp
 
       break;
     case 2:
@@ -326,7 +326,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(GEODUDE_PATH[2]);
       wild.level = 5 + rand() % 4;
-      wild.xp = 33; // base worth 33 xp
+      wild.xp = 53; // base worth 53 xp
 
       break;
     case 3:
@@ -334,8 +334,8 @@ public:
       resources.wildTexture = resources.loadTexture(PONYTA_PATH[pokemon::facing::FRONT]);
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(PONYTA_PATH[2]);
-      wild.level = 5 + rand() % 4;
-      wild.xp = 21; // base worth 21 xp
+      wild.level = 5 + rand() % 7;
+      wild.xp = 51; // base worth 51 xp
 
       break;
     case 4:
@@ -344,7 +344,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(CUBONE_PATH[2]);
       wild.level = 5 + rand() % 4;
-      wild.xp = 20; // base worth 20 xp
+      wild.xp = 40; // base worth 40 xp
 
       break;
     case 5:
@@ -353,7 +353,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(ODISH_PATH[2]);
       wild.level = 5 + rand() % 1;
-      wild.xp = 15; // base worth 15 xp
+      wild.xp = 35; // base worth 35 xp
 
       break;
     case 6:
@@ -362,7 +362,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(PIKACHU_PATH[2]);
       wild.level = 5 + rand() % 8;
-      wild.xp = 19; // base worth 19 xp
+      wild.xp = 39; // base worth 39 xp
 
       break;
     }

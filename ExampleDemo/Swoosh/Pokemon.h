@@ -72,8 +72,8 @@ namespace pokemon {
    element::N_A,
    element::GROUND,
    5,
-   200,
-   200,
+   120,
+   120,
    0,
    false
   };
@@ -102,7 +102,7 @@ namespace pokemon {
    element::N_A,
    element::GROUND,
    5,
-   200,
+   180,
    200,
    0,
    false
@@ -162,8 +162,8 @@ namespace pokemon {
   element::N_A,
   element::ELECTRIC,
   5,
-  20,
-  80,
+  110,
+  110,
   0,
   false
   };
@@ -192,7 +192,7 @@ namespace pokemon {
   element::N_A,
   element::WATER,
   5,
-  30,
+  70,
   70,
   0,
   false

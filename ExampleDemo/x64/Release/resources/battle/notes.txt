@@ -1,0 +1,3 @@
+hp starts at red
+46 samples in hp bar
+95 samples in xp bar

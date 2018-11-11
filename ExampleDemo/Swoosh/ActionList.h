@@ -238,13 +238,10 @@ public:
       return;
 
     if (condition()) {
-      std::cout << "condition was true" << std::endl;
       list->insert(getIndex(), branchIfTrue);
       branchIfFalse->clear();
     }
     else {
-      std::cout << "condition was false" << std::endl;
-
       list->insert(getIndex(), branchIfFalse);
       branchIfTrue->clear();
     }

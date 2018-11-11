@@ -15,6 +15,7 @@ void ThunderboltAction::update(double elapsed) {
     sound.play();
     bolt.setRepeated(true);
     thunderbolt.setTexture(bolt);
+    swoosh::game::setOrigin(thunderbolt, 0.5, 0);
   }
 
   total += elapsed;
@@ -32,6 +33,9 @@ void ThunderboltAction::update(double elapsed) {
     thunderbolt.setTextureRect(sf::IntRect(rect.left, rect.top + 10, rect.width, rect.height));
 
   thunderbolt.setColor(sf::Color(255, 255, 255, alpha * 255));
+
+  // start over target at top of screen
+  thunderbolt.setPosition(sf::Vector2f(target.getPosition().x, 0));
 
   if (total >= 1)
     markDone();

@@ -46,6 +46,8 @@ private:
   Direction playerDirection;
   bool inFocus;
   bool isWalking;
+  bool whiteout;
+
   int moveSpacesLeft;
 
   std::vector<pokemon::monster> playerMonsters;
@@ -54,6 +56,7 @@ public:
     : resources(resources), Activity(controller) {
     inFocus = false;
     isWalking = false;
+    whiteout = false;
     moveSpacesLeft = 0;
     townMusic.openFromFile(TOWN_MUSIC_PATH);
 
@@ -73,8 +76,8 @@ public:
     playerDirection = Direction::DOWN;
 
     playerMonsters.clear();
-    playerMonsters.push_back(pokemon::monster(pokemon::charizard));
     playerMonsters.push_back(pokemon::monster(pokemon::pikachu));
+    playerMonsters.push_back(pokemon::monster(pokemon::charizard));
     playerMonsters.push_back(pokemon::monster(pokemon::onyx));
     playerMonsters.push_back(pokemon::monster(pokemon::piplup));
     playerMonsters.push_back(pokemon::monster(pokemon::roserade));
@@ -89,7 +92,13 @@ public:
     sf::RenderWindow& window = getController().getWindow();
 
     if (inFocus) {
-      if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
+
+      // We lost the battle, jump right into the main menu screen
+      if (whiteout) {
+        getController().push<MainMenuScene>(resources, overworldSnapshot, false);
+        whiteout = false;
+      }
+      else if (sf::Keyboard::isKeyPressed(sf::Keyboard::Enter)) {
         getController().push<segue<WhiteWashFade>::to<MainMenuScene>>(resources, overworldSnapshot, false); // Pass into next scene
       }
 
@@ -110,7 +119,7 @@ public:
             int random_battle = rand() % 100;
 
             if (random_battle >= 89) {
-              int random_segue = 2; //  rand() % 3;
+              int random_segue = rand() % 3;
 
               if (random_segue == 0) {
                 getController().push<segue<PokeBallCircle, sec<3>>::to<BattleScene>>(resources, playerMonsters);
@@ -201,13 +210,23 @@ public:
 
   virtual void onEnter() {
     std::cout << "OverworldScene onEnter called" << std::endl;
+
+    // We come back from whiteout in battle, go back to title and restart
+    if (playerMonsters[0].hp <= 0) {
+      restart();
+      whiteout = true;
+    }
   }
 
   virtual void onResume() {
-    inFocus = true;
     std::cout << "OverworldScene onResume called" << std::endl;
-    townMusic.play();
-    townMusic.setVolume(100);
+
+    inFocus = true;
+
+    if(!whiteout) {
+      townMusic.play();
+      townMusic.setVolume(100);
+    }
   }
 
   virtual void onDraw(sf::RenderTexture& surface) {
