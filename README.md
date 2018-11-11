@@ -33,6 +33,8 @@ Uses [Swoosh](https://github.com/TheMaverickProgrammer/Swoosh) the mini segue an
 
 SFML 2.5
 
+[TmxLite](https://github.com/fallahn/tmxlite) - you may need to build and provide your own DLLs when building the project from source
+
 C++14
 
 _Optional_ - includes visual studio project
