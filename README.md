@@ -54,6 +54,7 @@ Battle
 * Arrow keys to select move
 * Enter to confirm move / proceed textbox
 * Back key to leave the battle at any time
+* Hold Spacebar to speed up battle in real-time by 2.5x!
 
 # Origins
 
