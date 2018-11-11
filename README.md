@@ -4,22 +4,31 @@ Using the Swoosh segue and easing library, recreate a pokemon game with ease as 
 # Preface
 
 THIS PROJECT IS NON PROFIT AND OPEN SOURCE.
+
 THIS PROJECT IS FOR EDUCATIONAL PURPOSES ONLY. 
+
 I DO NOT CLAIM TO OWN ANY OF THE POKEMON ART OR MUSIC INCLUDED. 
+
 ALL RIGHTS BELONG TO NINTENDO. 
 
 # Video
 Watch most of the playthrough [here](https://streamable.com/vyfhq)!
 
 You'll see 3 pokemon-style segues just like from the games! 
+
 You'll see 8+ different pokemon!
+
 You'll see 6+ different moves!
+
 You can level up your pokemon!
+
 You can whiteout!
 
 # Technology
-Uses [Swoosh](https://github.com/TheMaverickProgrammer/Swoosh) the mini segue and activity library for SFML
+Uses [Swoosh](https://github.com/TheMaverickProgrammer/Swoosh) the mini segue and activity library
+
 SFML 2.5
+
 C++14
 
 _Optional_ - includes visual studio project
