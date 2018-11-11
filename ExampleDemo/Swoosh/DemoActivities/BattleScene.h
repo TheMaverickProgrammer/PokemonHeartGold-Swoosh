@@ -146,12 +146,15 @@ public:
   void generateBattleActions(const pokemon::moves& playerchoice) {
     const pokemon::moves* monsterchoice = nullptr;
 
-    if (playerMonsters[0].move1 == nullptr && 
-        playerMonsters[0].move2 == nullptr && 
-        playerMonsters[0].move3 == nullptr && 
-        playerMonsters[0].move4 == nullptr) {
+    if (wild.move1 == nullptr &&
+        wild.move2 == nullptr &&
+        wild.move3 == nullptr &&
+        wild.move4 == nullptr) {
       monsterchoice = &pokemon::nomove;
     }
+
+    // 2-step move
+    if (wild.isFlying) monsterchoice = &pokemon::fly;
 
     while (monsterchoice == nullptr) {
       int randmove = rand() % 4;
@@ -173,8 +176,8 @@ public:
     }
 
     actions.clear();
-
-    // default behavior always plays (non-blocking)
+    /* These two actions are non blocking
+       make sure the pokemon have this to fall back to*/
     actions.add(new IdleAction(wildSprite));
     actions.add(new IdleAction(playerSprite));
 
@@ -190,16 +193,19 @@ public:
     actions.add(new SignalRoundOver(this));
   }
 
-  void decideBattleOrder(pokemon::monster* first, const pokemon::moves* firstchoice, sf::Sprite* firstSprite, sf::SoundBuffer** firstRoarBuffer, 
+  void decideBattleOrder(pokemon::monster* first, const pokemon::moves* firstchoice, sf::Sprite* firstSprite, sf::SoundBuffer** firstRoarBuffer,
     pokemon::monster* second, const pokemon::moves* secondchoice, sf::Sprite* secondSprite, sf::SoundBuffer** secondRoarBuffer) {
     pokemon::facing facing = pokemon::facing::BACK;
 
     if (first == &wild)
       facing = pokemon::facing::FRONT;
-    
+
     ActionList* missedActionList = new ActionList();
     ActionList* defaultActionList = new ActionList();
 
+    // The item below will set the isFlying attribute to false in the event the move that missed was "flying"
+    (*missedActionList).add(new IdleAction(*firstSprite));
+    (*missedActionList).add(new DisableFlyAction(*firstSprite, *first));
     (*missedActionList).add(new ChangeText(output, std::string(first->name) + " missed!"));
     (*missedActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
 
@@ -243,6 +249,7 @@ public:
       }
       else if (firstchoice->name == "thunder") {
         (*defaultActionList).add(new ChangeText(output, std::string(first->name) + " used thunder!"));
+        (*defaultActionList).add(new ThunderboltAction(*secondSprite, *resources.thunderBuffer, sound, *resources.boltTexture));
         (*defaultActionList).add(new TakeDamage(*second, firstchoice->damage, *resources.attackNormalBuffer, sound));
         (*defaultActionList).add(new SignalCheckHP(this));
         (*defaultActionList).add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
@@ -274,7 +281,16 @@ public:
     }
 
     // Our attacks miss unless its a flying move- we can go up in the sky and try to hit next turn
-    auto condition = [second, firstchoice]() { return second->isFlying && &(*firstchoice) != &pokemon::fly;  };
+    // Check that they are not also flying while coming down
+    // Roar is an exception as it affects ourself 
+    auto condition = [second, first, firstchoice]() {
+      return (second->isFlying
+        && first->isFlying
+        && &(*firstchoice) == &pokemon::fly)
+        || (second->isFlying && &(*firstchoice) != &pokemon::roar && &(*firstchoice) != &pokemon::fly)
+        ;  
+    };
+
     actions.add(new ConditionalAction(condition, missedActionList, defaultActionList));
   }
 
@@ -293,7 +309,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(PIDGEY_PATH[2]);
       wild.level = 5 + rand() % 8;
-      wild.xp = 25 * wild.level/2.0; // base worth 25 xp
+      wild.xp = 25; // base worth 25 xp
       break;
     case 1:
       wild = pokemon::monster(pokemon::clefairy);
@@ -301,7 +317,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(CLEFAIRY_PATH[2]);
       wild.level = 5 + rand() % 4;
-      wild.xp = 50 * wild.level / 2.0; // base worth 50 xp
+      wild.xp = 50; // base worth 50 xp
 
       break;
     case 2:
@@ -310,7 +326,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(GEODUDE_PATH[2]);
       wild.level = 5 + rand() % 4;
-      wild.xp = 33 * wild.level / 2.0; // base worth 33 xp
+      wild.xp = 33; // base worth 33 xp
 
       break;
     case 3:
@@ -319,7 +335,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(PONYTA_PATH[2]);
       wild.level = 5 + rand() % 4;
-      wild.xp = 21 * wild.level / 2.0; // base worth 21 xp
+      wild.xp = 21; // base worth 21 xp
 
       break;
     case 4:
@@ -328,7 +344,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(CUBONE_PATH[2]);
       wild.level = 5 + rand() % 4;
-      wild.xp = 20 * wild.level / 2.0; // base worth 20 xp
+      wild.xp = 20; // base worth 20 xp
 
       break;
     case 5:
@@ -337,7 +353,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(ODISH_PATH[2]);
       wild.level = 5 + rand() % 1;
-      wild.xp = 15 * wild.level / 2.0; // base worth 15 xp
+      wild.xp = 15; // base worth 15 xp
 
       break;
     case 6:
@@ -346,7 +362,7 @@ public:
       wildSprite = sf::Sprite(*resources.wildTexture);
       resources.wildRoarBuffer = resources.loadSound(PIKACHU_PATH[2]);
       wild.level = 5 + rand() % 8;
-      wild.xp = 12 * wild.level / 2.0; // base worth 12 xp
+      wild.xp = 19; // base worth 19 xp
 
       break;
     }
@@ -392,7 +408,7 @@ public:
   public:
 
   // used as shorthand notation for pokeball
-  void spawnParticles(sf::Texture* texture, sf::Vector2f position, int numPerFrame=100) {
+  void spawnPokeballParticles(sf::Texture* texture, sf::Vector2f position, int numPerFrame=100) {
     for (int i = numPerFrame; i > 0; i--) {
       int randNegative = rand() % 2 == 0 ? -1 : 1;
       int randSpeedX = rand() % 220;
@@ -515,6 +531,9 @@ public:
       colSelect = std::max(0, colSelect);
       colSelect = std::min(colSelect, 1);
 
+      // Clear for the next round
+      //actions.clear();
+
       const pokemon::moves* choice = &pokemon::nomove;
 
       // Flying pokemon take 2 turns
@@ -523,8 +542,8 @@ public:
         canInteract = false;
         choice = &pokemon::fly;
 
-        actions.add(new ChangeText(output, "Your pokemon is still\nin the sky!"));
-        actions.add(new WaitForButtonPressAction(sf::Keyboard::Space, *resources.selectBuffer, sound));
+        actions.add(new ChangeText(output, std::string() + playerMonsters[0].name + " is\nstill in the sky!"));
+        actions.add(new WaitForButtonPressAction(sf::Keyboard::Enter, *resources.selectBuffer, sound));
         generateBattleActions(*choice);
         return;
       }
@@ -588,6 +607,7 @@ public:
     std::cout << "BattleScene OnExit called" << std::endl;
 
     if (fadeMusic) {
+      playerMonsters[0].isFlying = false; // reset in the event we left early (debug key press)
       battleMusic.stop();
     }
   }

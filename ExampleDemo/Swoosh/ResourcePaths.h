@@ -47,6 +47,7 @@ RESOURCE DEFENSE_DOWN_PATH = "resources/battle/effects/ddown.png";
 RESOURCE ATTACK_UP_PATH    = "resources/battle/effects/aup.png";
 RESOURCE PARTICLE_PATH = "resources/battle/effects/pokeball.png";
 RESOURCE FIREBALL_PATH = "resources/battle/effects/fire.png";
+RESOURCE TBOLT_PATH = "resources/battle/effects/bolt.png";
 
 RESOURCE POKEBALL_CIRCLE_MASK_PATH = "resources/segue/pokeball_mask.png";
 RESOURCE RETRO_SNAKE_MASK_PATH = "resources/segue/snake_mask.png";

@@ -15,7 +15,7 @@ void SpawnNewPokemon::update(double elapsed) {
     this->ref->playerMonsters.erase(this->ref->playerMonsters.begin());
     this->ref->loadPlayerPokemonData();
     isLoaded = true;
-    ref->spawnParticles(this->ref->resources.particleTexture, this->ref->playerSprite.getPosition());
+    ref->spawnPokeballParticles(this->ref->resources.particleTexture, this->ref->playerSprite.getPosition());
   }
 
   scale = ease::linear(total, 0.5, 1.0);

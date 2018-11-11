@@ -33,6 +33,7 @@ public:
   sf::Texture *enemyStatusTexture;
   sf::Texture *particleTexture;
   sf::Texture *fireTexture;
+  sf::Texture *boltTexture;
   sf::Texture *titleTexture;
   sf::Texture *ddownTexture;
   sf::Texture *aupTexture;
@@ -50,6 +51,7 @@ public:
   sf::SoundBuffer *flyBuffer;
   sf::SoundBuffer *faintBuffer;
   sf::SoundBuffer *flameBuffer;
+  sf::SoundBuffer *thunderBuffer;
   sf::SoundBuffer *buzzerBuffer;
   sf::SoundBuffer *levelupBuffer;
 
@@ -85,7 +87,7 @@ public:
   /*
   In a production scenario, the manager would add up the total
   number. We'd queue a resource for loading somewhere else behfore hand.*/
-  const int getResourceCount() const { return 31;  }
+  const int getResourceCount() const { return 33;  }
   const int getProgress() const { return progress; }
   const bool isLoaded() const { return progress == getResourceCount(); }
   void load();

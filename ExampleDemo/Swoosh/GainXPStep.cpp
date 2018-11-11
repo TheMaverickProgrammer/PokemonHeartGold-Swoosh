@@ -9,7 +9,10 @@ GainXPStep::GainXPStep(std::string& output, pokemon::monster& ref, pokemon::mons
   defeated(defeated), actions(actions), BlockingActionItem() {
   // In a real game, increase xp by level and other factors
   // In ours, multiply the xp by the gap in levels and a deginerative value
-  this->xp = this->gainedxp = std::ceil((defeated.xp*0.98*((double)defeated.level / (double)ref.level)));
+  double gap = (double)defeated.level / (double)ref.level;
+
+  if (gap > 1.0) { gap *= 0.94;  }
+  this->xp = this->gainedxp = std::ceil(defeated.xp*gap);
   playOnce = false;
 }
 

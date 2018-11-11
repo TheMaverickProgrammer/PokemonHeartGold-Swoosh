@@ -171,6 +171,12 @@
     <ClInclude Include="DemoActivities\OverworldScene.h">
       <Filter>Source Files\Demo\Activities</Filter>
     </ClInclude>
+    <ClInclude Include="DisableFlyAction.h">
+      <Filter>Source Files\Demo\Data\BattleActions</Filter>
+    </ClInclude>
+    <ClInclude Include="ThunderboltAction.h">
+      <Filter>Source Files\Demo\Data\BattleActions</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="pch.cpp">
@@ -237,6 +243,12 @@
       <Filter>Source Files\Demo\Data\BattleActions</Filter>
     </ClCompile>
     <ClCompile Include="SignalCheckHP.cpp">
+      <Filter>Source Files\Demo\Data\BattleActions</Filter>
+    </ClCompile>
+    <ClCompile Include="DisableFlyAction.cpp">
+      <Filter>Source Files\Demo\Data\BattleActions</Filter>
+    </ClCompile>
+    <ClCompile Include="ThunderboltAction.cpp">
       <Filter>Source Files\Demo\Data\BattleActions</Filter>
     </ClCompile>
   </ItemGroup>

@@ -109,8 +109,8 @@ public:
           if (spawn_tile == 1127) {
             int random_battle = rand() % 100;
 
-            if (random_battle >= 79) {
-              int random_segue = rand() % 3;
+            if (random_battle >= 89) {
+              int random_segue = 2; //  rand() % 3;
 
               if (random_segue == 0) {
                 getController().push<segue<PokeBallCircle, sec<3>>::to<BattleScene>>(resources, playerMonsters);

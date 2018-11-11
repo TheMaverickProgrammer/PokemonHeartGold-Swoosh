@@ -16,11 +16,14 @@ static auto DISPLACEMENT_PATTERN_FRAG_SHADER = GLSL
   {
     float direction = mod(floor(gl_FragCoord.y*19.0), 2.0) * 2.0 - 1.0;
 
-    /*vec4 displacement = texture2D(pattern, gl_TexCoord[0].xy);
-    displacement = ((displacement * 2.0) - 1.0) * progress;
-    */
+    vec4 displacement = texture2D(pattern, gl_TexCoord[0].xy);
+    displacement.g = 0.5;
 
-    vec2 newTexCoord = gl_TexCoord[0].xy + vec2(direction * progress, 0);
+    displacement = ((displacement * 2.0) - 1.0) * progress;
+
+    vec2 newTexCoord = gl_TexCoord[0].xy + displacement.xy;
+
+    //vec2 newTexCoord = gl_TexCoord[0].xy + vec2(direction * progress, 0);
     vec4 pixel = texture2D(texture, newTexCoord);
 
     if (newTexCoord.x > 1.0 || newTexCoord.x < 0.0) {

@@ -178,6 +178,7 @@
     <ClInclude Include="DemoActivities\BattleScene.h" />
     <ClInclude Include="DemoActivities\MainMenuScene.h" />
     <ClInclude Include="DemoActivities\OverworldScene.h" />
+    <ClInclude Include="DisableFlyAction.h" />
     <ClInclude Include="FaintAction.h" />
     <ClInclude Include="FlameThrowerAction.h" />
     <ClInclude Include="FlyAction.h" />
@@ -197,6 +198,7 @@
     <ClInclude Include="TackleAction.h" />
     <ClInclude Include="TailWhipAction.h" />
     <ClInclude Include="TakeDamage.h" />
+    <ClInclude Include="ThunderboltAction.h" />
     <ClInclude Include="TMXMapLayer.h" />
     <ClInclude Include="WaitForButtonPressAction.h" />
   </ItemGroup>
@@ -206,6 +208,7 @@
     <ClCompile Include="ChangeMusic.cpp" />
     <ClCompile Include="ChangeText.cpp" />
     <ClCompile Include="DefenseDownAction.cpp" />
+    <ClCompile Include="DisableFlyAction.cpp" />
     <ClCompile Include="FaintAction.cpp" />
     <ClCompile Include="FlameThrowerAction.cpp" />
     <ClCompile Include="FlyAction.cpp" />
@@ -227,6 +230,7 @@
     <ClCompile Include="TackleAction.cpp" />
     <ClCompile Include="TailWhipAction.cpp" />
     <ClCompile Include="TakeDamage.cpp" />
+    <ClCompile Include="ThunderboltAction.cpp" />
     <ClCompile Include="WaitForButtonPressAction.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

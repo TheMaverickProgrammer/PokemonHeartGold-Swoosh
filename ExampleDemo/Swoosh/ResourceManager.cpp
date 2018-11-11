@@ -25,6 +25,7 @@ ResourceManager::~ResourceManager()
   delete enemyStatusTexture;
   delete particleTexture;
   delete fireTexture;
+  delete boltTexture;
   delete titleTexture;
   delete ddownTexture;
   delete aupTexture;
@@ -42,6 +43,7 @@ ResourceManager::~ResourceManager()
   delete flyBuffer;
   delete faintBuffer;
   delete flameBuffer;
+  delete thunderBuffer;
   delete buzzerBuffer;
   delete levelupBuffer;
 
@@ -70,6 +72,7 @@ void ResourceManager::load() {
   flameBuffer = loadSound(FLAME_FX); progress++;
   buzzerBuffer = loadSound(BUZZER_FX); progress++;
   levelupBuffer = loadSound(LEVEL_UP_FX); progress++;
+  thunderBuffer = loadSound(THUNDER_SFX); progress++;
 
   owPlayerTexture = loadTexture(PLAYER_OW_PATH); progress++;
   battleAreaTexture = loadTexture(GRASS_AREA); progress++;
@@ -80,6 +83,7 @@ void ResourceManager::load() {
   enemyStatusTexture = loadTexture(ENEMY_STATUS_PATH); progress++;
   particleTexture = loadTexture(PARTICLE_PATH); progress++;
   fireTexture = loadTexture(FIREBALL_PATH); progress++;
+  boltTexture = loadTexture(TBOLT_PATH); progress++;
   titleTexture = loadTexture(TITLE_PATH); progress++;
   ddownTexture = loadTexture(DEFENSE_DOWN_PATH); progress++;
   aupTexture = loadTexture(ATTACK_UP_PATH); progress++;
