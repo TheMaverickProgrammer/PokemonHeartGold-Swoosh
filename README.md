@@ -28,6 +28,16 @@ You can level up your pokemon!
 
 You can whiteout!
 
+# What's A Segue?
+> se·gue _n_  To move smoothly and unhesitatingly from one state to another
+
+Segues are screen transitions. In this demo the segue object; not the overworld; are responsible for the screen flashes and effects.
+The battle scene plays music but doesnt start the intro until that effect is complete as opposed to beginning immediately.
+We could also have a segue that pushed a trainer's icon and name at the top before going to the battle. 
+Segues bring this level of control and keeps all that logic seperate from the overworld.
+
+Also it just looks really cool.
+
 # Technology
 Uses [Swoosh](https://github.com/TheMaverickProgrammer/Swoosh) the mini segue and activity library
 
