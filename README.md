@@ -67,7 +67,7 @@ The battle system uses an ActionList with custom [action items](https://github.c
 Adding pokemon is as easy as defining them in the [data header file](https://github.com/TheMaverickProgrammer/PokemonHeartGold-Swoosh/blob/master/ExampleDemo/Swoosh/Pokemon.h#L51) and loading their art and sounds in the [load step](https://github.com/TheMaverickProgrammer/PokemonHeartGold-Swoosh/blob/master/ExampleDemo/Swoosh/DemoActivities/BattleScene.h#L297).
 Adding movesets is the same way. Once you add a move in the data header file you queue up all the action items in the [`decideBattleOrder`](https://github.com/TheMaverickProgrammer/PokemonHeartGold-Swoosh/blob/master/ExampleDemo/Swoosh/DemoActivities/BattleScene.h#L196) step and watch the battle unfold!
 
-As small as it is, there are lots of areas for refactoring that could reduce the amount of work to register new moves, pokemon, and their corresponding action items. For instance, if you add scripting you can associate the actions from the script file and have a truly flyweight engine. Who doesn't like to write less code?
+As small as it is, there are lots of areas for refactoring that could reduce the amount of work to register new moves, pokemon, and their corresponding action items. For instance, if you add scripting you can associate the actions from the script file and have a truly versatile engine. Who doesn't like to write less code?
 
 # Origins
 
