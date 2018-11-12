@@ -29,7 +29,7 @@ You can level up your pokemon!
 You can whiteout!
 
 # What's A Segue?
-> se·gue _n_  To move smoothly and unhesitatingly from one state to another
+> se·gue _n_ : To move smoothly and unhesitatingly from one state to another
 
 Segues are screen transitions. In this demo the segue object; not the overworld; are responsible for the screen flashes and effects.
 The battle scene plays music but doesnt start the intro until that effect is complete as opposed to beginning immediately.
